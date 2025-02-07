@@ -4,6 +4,9 @@ import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import Dashboard from './Components/Dashboard'
 import Navbar from './Components/Navbar'
 import Trades from './Components/Trades';
+import Settings from './Components/Settings';
+import About from './Components/About'
+import Calculators from './Components/Calculators';
 
 function App() {
     return (
@@ -16,9 +19,10 @@ function App() {
 
                 {/* Dashboard oldal renderelése */}
                 <Route path='/' element={<Dashboard />} />
-                {/* <Route path='/Calculators' element={<Calculators />} />
-                <Route path='/Settings' element={<Settings />} />*/}
+                <Route path='/Calculators' element={<Calculators />} />
+                <Route path='/Settings' element={<Settings />} />
                 <Route path='/Trades' element={<Trades />} />
+                <Route path='/About' element={<About />} />
 
             </Routes>
         </Router>

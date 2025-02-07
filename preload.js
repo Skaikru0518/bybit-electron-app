@@ -12,5 +12,7 @@ contextBridge.exposeInMainWorld('bybitAPI', {
     fetchSymbolInfo: (symbol) => ipcRenderer.invoke('fetch-symbol-info', symbol),
     updateLeverage: (symbol, leverage) => ipcRenderer.invoke('update-leverage', symbol, leverage),
     modifyTpsl: (symbol, takeProfit, stopLoss) => ipcRenderer.invoke('modify-tpsl', { symbol, takeProfit, stopLoss }),
-    closeMarketPosition: (symbol, side, qty) => ipcRenderer.invoke('close-market-position', { symbol, side, qty }),
+    closePosition: (symbol) => ipcRenderer.invoke('close-position', symbol),
+    fetchPendingOrders: (category) => ipcRenderer.invoke('fetch-pending-orders', category),
+    cancelOrder: (orderId, symbol) => ipcRenderer.invoke('cancel-order', orderId, symbol),
 });

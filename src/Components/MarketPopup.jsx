@@ -5,31 +5,27 @@ function MarketPopup({ onClose, position }) {
     const [feedback, setFeedback] = useState('');
 
     // Handle closing position on market
-    const handleCloseMarket = async (symbol, side, qty) => {
+    const handleCloseMarket = async () => {
         setLoading(true);
         setFeedback('Closing position...');
 
         try {
-            // Corrected logic to pass the correct side and qty
-            const response = await window.bybitAPI.closeMarketPosition(symbol, side, qty);
-            if (response.retCode === 0) {
-                setFeedback(`${symbol} position closed successfully.`);
-                console.log(`${symbol} position closed successfully.`);
+            const response = await window.bybitAPI.closePosition(position.symbol); // IPC hívás
+
+            if (response.error) {
+                setFeedback(`Error: ${response.error}`);
+                console.error(`Error closing ${position.symbol} position: ${response.error}`);
             } else {
-                setFeedback(`Error: ${response.retMsg}`);
-                console.error(`Error closing ${symbol} position: ${response.retMsg}`);
+                setFeedback(`${position.symbol} position closed successfully.`);
+                console.log(`${position.symbol} position closed successfully.`);
             }
         } catch (error) {
             setFeedback('Error closing position');
-            console.error(`Error closing ${symbol} position:`, error);
+            console.error(`Error closing ${position.symbol} position:`, error);
         } finally {
             setLoading(false);
         }
     };
-
-    // Determine side based on current position (Buy -> Sell or Sell -> Buy)
-    const side = position.side === 'Buy' ? 'Sell' : 'Buy'; // Correctly determine side
-    const qty = position.size; // Use the position size for qty
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -51,7 +47,7 @@ function MarketPopup({ onClose, position }) {
                 <div className="flex space-x-2">
                     <button
                         className="flex-1 p-2 rounded bg-red-600 text-white"
-                        onClick={() => handleCloseMarket(position.symbol, side, qty)} // Correct side and qty
+                        onClick={handleCloseMarket}
                         disabled={loading}
                     >
                         {loading ? 'Closing...' : 'Close Position'}

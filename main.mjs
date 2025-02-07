@@ -5,6 +5,7 @@ import axios from 'axios';
 import crypto, { sign } from 'crypto';
 import Store from 'electron-store';
 import { time } from 'console';
+import { response } from 'express';
 
 // __dirname ESM-ben
 const __filename = fileURLToPath(import.meta.url);
@@ -51,6 +52,14 @@ ipcMain.on('set-api-keys', (event, { apiKey: key, apiSecret: secret }) => {
     store.set('apiSecret', apiSecret);
     console.log('API kulcsok elmentve!');
 });
+
+// Interval beállítása
+ipcMain.on('set-interval', (event, interval) => {
+    console.log('Interval received:', interval); // Debugging log
+    store.set('intervalTime', interval);
+    console.log('Interval saved to store!');
+});
+
 
 // Ár lekérdezése a Bybit API-ból
 ipcMain.handle('get-price', async (event, symbol) => {
@@ -100,6 +109,38 @@ ipcMain.handle('get-wallet-balance', async (event, accountType = 'UNIFIED') => {
     } catch (error) {
         console.error('API hiba:', error);
         return { error: 'Nem sikerült a wallet balance lekérdezése' };
+    }
+});
+
+ipcMain.handle('fetch-pending-orders', async (event, category = 'linear') => {
+    if (!apiKey || !apiSecret) {
+        console.error('❌ API keys are missing.');
+        return { error: 'API keys are missing.' };
+    }
+
+    const timestamp = Date.now();
+    const params = {
+        category,
+        settleCoin: 'USDT',
+        api_key: apiKey,
+        timestamp,
+    };
+
+    // Generate the signature
+    const signature = createSignature(params, apiSecret);
+    params.sign = signature;
+
+    // console.log("🔹 Fetching pending orders with params:", params);
+
+    try {
+        const response = await axios.get(`${BASE_URL}/v5/order/realtime`, { params });
+
+        // console.log("✅ API Response:", JSON.stringify(response.data, null, 2));
+
+        return response.data.result.list || [];
+    } catch (error) {
+        console.error('❌ Error fetching pending orders:', error.response ? JSON.stringify(error.response.data, null, 2) : error.message);
+        return { error: 'Failed to fetch pending orders.' };
     }
 });
 
@@ -229,26 +270,24 @@ ipcMain.handle('update-leverage', async (event, { symbol, leverage }) => {
     }
 });
 
-//Modify TP/SL
+// Modify TP/SL
 ipcMain.handle('modify-tpsl', async (event, { symbol, takeProfit, stopLoss }) => {
     const timestamp = Date.now();
 
-    // Prepare the payload for Bybit API
+    // Ensure correct values: Use "0" if null/undefined, but allow explicit 0
     const params = {
         category: 'linear',
-        symbol: symbol.toUpperCase(), // Ensure the symbol is uppercase
-        takeProfit: takeProfit || null, // Set takeProfit as null if not provided
-        stopLoss: stopLoss || null, // Set stopLoss as null if not provided
-        api_key: apiKey,  // The API key
-        timestamp,  // Current timestamp
+        symbol: symbol.toUpperCase(),
+        takeProfit: takeProfit ?? '0', // If null/undefined → "0", but keeps valid 0
+        stopLoss: stopLoss ?? '0', // If null/undefined → "0", but keeps valid 0
+        api_key: apiKey,
+        timestamp,
     };
 
-    // Generate the signature using the params
-    const signature = createSignature(params, apiSecret);
-    params.sign = signature;  // Attach the signature to the params
+    params.sign = createSignature(params, apiSecret);
 
-    console.log('Generated signature:', signature);  // Debugging the signature
-    console.log('Params:', params);  // Debugging the params
+    console.log('Generated signature:', params.sign);
+    console.log('Params:', params);
 
     try {
         const response = await axios.post(`${BASE_URL}/v5/position/trading-stop`, params, {
@@ -263,51 +302,58 @@ ipcMain.handle('modify-tpsl', async (event, { symbol, takeProfit, stopLoss }) =>
     }
 });
 
-ipcMain.handle('close-market-position', async (event, { symbol, side, qty }) => {
+
+ipcMain.handle('close-position', async (event, symbol) => {
+    console.log(`Closing position for: ${symbol}`);
+
+    if (!apiKey || !apiSecret) {
+        return { error: 'API keys are missing. Please set them in settings.' };
+    }
+
     const timestamp = Date.now();
 
-    // Ensure side and qty are provided
-    if (!side || !qty) {
-        return { error: 'Side and qty are required' };
-    }
-
-    // Prepare the payload for Bybit API
-    const closeParams = {
-        category: 'linear',  // Specify category as 'linear'
-        symbol: symbol.toUpperCase(),  // Ensure symbol is in uppercase
-        side,  // Buy/Sell to close position
-        qty,  // Quantity to close
-        order_type: 'Market',  // Close position at market price
-        reduceOnly: true,  // Ensure position is reduced and not increased
-        stopLoss: null,  // If you don't want to set a stop loss, pass null
-        takeProfit: null,  // If you don't want to set a take profit, pass null
-        trailingStop: null,  // If you don't want to set trailing stop, pass null
-        api_key: apiKey,  // The stored API key
-        timestamp,  // Current timestamp
-    };
-
-    // Generate the signature using the params
-    const signature = createSignature(closeParams, apiSecret);
-    closeParams.sign = signature;  // Attach the signature to the params
-
-    console.log('Generated signature for close market:', signature);  // Debugging the signature
-    console.log('Close Market Params:', closeParams);  // Debugging the params
-
     try {
-        // Send the POST request to Bybit's trading-stop endpoint
-        const response = await axios.post(`${BASE_URL}/v5/position/trading-stop`, closeParams, {
-            headers: { 'Content-Type': 'application/json' },
-        });
+        // 1️⃣ Lekérdezzük az adott szimbólumhoz tartozó nyitott pozíciót
+        const positionParams = {
+            category: 'linear',
+            symbol: symbol.toUpperCase(),
+            api_key: apiKey,
+            timestamp,
+        };
+        positionParams.sign = createSignature(positionParams, apiSecret);
 
-        console.log('Close Market response:', response.data);
-        return response.data;  // Return the response to the frontend
+        const positionResponse = await axios.get(`${BASE_URL}/v5/position/list`, { params: positionParams });
+
+        if (!positionResponse.data.result.list || positionResponse.data.result.list.length === 0) {
+            return { error: `No open position found for ${symbol}` };
+        }
+
+        const position = positionResponse.data.result.list[0];
+
+        // 2️⃣ Close request body létrehozása
+        const closeParams = {
+            category: 'linear',
+            symbol: symbol.toUpperCase(),
+            side: position.side === 'Buy' ? 'Sell' : 'Buy', // Ha Buy volt, akkor Sell kell és fordítva
+            orderType: 'Market',
+            qty: position.size, // Az aktuális pozíció mérete
+            reduceOnly: true,
+            api_key: apiKey,
+            timestamp: Date.now(),
+        };
+        closeParams.sign = createSignature(closeParams, apiSecret);
+
+        console.log('Closing position with params:', closeParams);
+
+        // 3️⃣ Pozíció lezárása
+        const closeResponse = await axios.post('https://api-demo.bybit.com/v5/order/create', closeParams);
+
+        return closeResponse.data;
     } catch (error) {
-        console.error('Error closing market position:', error.response ? error.response.data : error.message);
-        return { error: 'Failed to close market position' };  // Return the error to the frontend
+        console.error('Error closing position:', error.response ? error.response.data : error.message);
+        return { error: error.response ? error.response.data : error.message };
     }
 });
-
-
 
 
 // Order nyitás bybiten
@@ -361,6 +407,36 @@ ipcMain.handle('place-order', async (event, orderData) => {
     }
 
 });
+
+ipcMain.handle('cancel-order', async (event, orderId, symbol) => {
+    if (!apiKey || !apiSecret) {
+        throw new Error('API keys are missing.');
+    }
+
+    const timestamp = Date.now();
+    const params = {
+        category: 'linear',
+        symbol, // Add symbol
+        orderId,
+        api_key: apiKey,
+        timestamp,
+    };
+
+    const signature = createSignature(params, apiSecret);
+    params.sign = signature;
+
+    try {
+        console.log(`🚀 Sending cancel request for ${symbol}, Order ID: ${orderId}`);
+        const response = await axios.post(`${BASE_URL}/v5/order/cancel`, params);
+        // console.log("✅ API Response:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error('❌ Error canceling order:', error.response ? JSON.stringify(error.response.data, null, 2) : error.message);
+        return { error: 'Failed to cancel order.' };
+    }
+});
+
+
 
 // Elmentett beállítások lekérése a frontend számára
 ipcMain.handle('get-settings', () => {

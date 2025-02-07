@@ -44,7 +44,8 @@ export default {
 
         'btn-disabled-bg': '#555555',
         'btn-logout-bg': '#8c00ff',
-        'btn-logout-hover': '#5a04c7'
+        'btn-logout-hover': '#5a04c7',
+        'table-hover': '#1e1e46'
       },
     },
   },

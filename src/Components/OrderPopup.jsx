@@ -122,30 +122,29 @@ function OrderPopup({ onClose }) {
         }
     };
 
-    const createOrder = async (orderData) => {
-        setFeedback('');  // Reset feedback before placing the order
-        try {
-            const response = await window.bybitAPI.placeOrder(orderData);
-            console.log("Order Created:", response);
-            if (response.retCode === 0) {
-                setFeedback('Order successfully placed!');
-            } else {
-                setFeedback(`Error: ${response.retMsg}`);
-            }
-        } catch (error) {
-            console.error('Error creating order:', error);
-            setFeedback('Error placing order');
-        }
-    };
+    // const createOrder = async (orderData) => {
+    //     setFeedback('');  // Reset feedback before placing the order
+    //     try {
+    //         const response = await window.bybitAPI.placeOrder(orderData);
+    //         console.log("Order Created:", response);
+    //         if (response.retCode === 0) {
+    //             setFeedback('Order successfully placed!');
+    //         } else {
+    //             setFeedback(`Error: ${response.retMsg}`);
+    //         }
+    //     } catch (error) {
+    //         console.error('Error creating order:', error);
+    //         setFeedback('Error placing order');
+    //     }
+    // };
 
     const handleOrderSubmit = async (side) => {
         let updatedOrderData = {
             ...orderData,
-            side, // 'Buy' or 'Sell'
-            leverage: orderData.leverage.toString(), // Leverage is already part of the orderData state
+            side,
+            leverage: orderData.leverage.toString(),
         };
 
-        // Update leverage first
         try {
             const leverageResponse = await window.bybitAPI.updateLeverage({
                 symbol: orderData.symbol,
@@ -161,44 +160,55 @@ function OrderPopup({ onClose }) {
             return;
         }
 
-        // If the order is a market order, calculate the qty and required margin
-        if (orderData.orderType === 'Market') {
-            if (!orderData.qty || orderData.qty === '') {
-                calculateMarketOrderDetails(orderData);
-                updatedOrderData.qty = orderData.qty;
-            }
+        // **Market Order Logika (NEM változtatunk rajta)**
+        if (orderData.orderType === "Market") {
+            updatedOrderData = {
+                ...updatedOrderData,
+                orderType: "Market",
+            };
         }
-
-        // If the order is a limit order, ensure the price is present
-        if (orderData.orderType === 'Limit') {
-            if (!orderData.price || orderData.price === 0) {
+        // **Limit Order Logika (TriggerPrice beállítással)**
+        else if (orderData.orderType === "Limit") {
+            if (!orderData.price || parseFloat(orderData.price) === 0) {
                 console.error('Price is required for limit orders.');
                 return;
             }
-            updatedOrderData.price = orderData.price.toString();
-        }
 
-        // Add triggerPrice and triggerDirection if applicable (for stop-limit or conditional orders)
-        if (orderData.triggerPrice) {
-            updatedOrderData.triggerPrice = orderData.triggerPrice;
-            updatedOrderData.triggerDirection = orderData.side === 'Buy' ? 1 : 2;
-        }
+            updatedOrderData = {
+                ...updatedOrderData,
+                orderType: "Limit",
+                price: orderData.price.toString(),
+                triggerPrice: orderData.price.toString(), // 🔹 **TriggerPrice beállítása**
+                triggerDirection: side === "Buy" ? 1 : 2, // 🔹 **Buy = 1 (amikor eléri vagy felette van), Sell = 2 (amikor eléri vagy alatta van)**
+                timeInForce: "GTC", // 🔹 Jó, ha a rendelés addig marad aktív, amíg ki nem törlik
+            };
 
-        // Ensure qty is set
-        if (!updatedOrderData.qty || updatedOrderData.qty === '') {
-            console.error('Qty is missing, order cannot be submitted!');
-            return;
+            if (side === 'Buy' && parseFloat(updatedOrderData.price) <= parseFloat(orderData.marketPrice)) {
+                console.error('Limit Buy price must be above the market price!');
+                setFeedback('Limit Buy price must be above market price!');
+                return;
+            }
+            if (side === 'Sell' && parseFloat(updatedOrderData.price) >= parseFloat(orderData.marketPrice)) {
+                console.error('Limit Sell price must be below the market price!');
+                setFeedback('Limit Sell price must be below market price!');
+                return;
+            }
         }
 
         console.log('Final Order Data to be sent:', updatedOrderData);
 
         try {
-            // Proceed with creating the order
-            const response = await createOrder(updatedOrderData); // Create the order using the API
+            const response = await window.bybitAPI.placeOrder(updatedOrderData);
             console.log('Order created successfully:', response);
-            onClose(); // Close the popup after successful order creation
+            if (response.retCode === 0) {
+                setFeedback('Order successfully placed!');
+                onClose();
+            } else {
+                setFeedback(`Error: ${response.retMsg}`);
+            }
         } catch (error) {
             console.error('Error creating order:', error);
+            setFeedback('Error placing order');
         }
     };
 

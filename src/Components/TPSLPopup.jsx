@@ -17,8 +17,12 @@ function TPSLPopup({ onClose, position }) {
         setLoading(true);
 
         try {
+            // Ensure empty fields are sent as "0" instead of null/undefined
+            const tpValue = takeProfit.trim() === "" ? "0" : takeProfit;
+            const slValue = stopLoss.trim() === "" ? "0" : stopLoss;
+
             // Calling the IPC method to modify TP/SL
-            const response = await window.bybitAPI.modifyTpsl(position.symbol, takeProfit, stopLoss);
+            const response = await window.bybitAPI.modifyTpsl(position.symbol, tpValue, slValue);
 
             if (response.retCode === 0) {
                 setFeedback('TP/SL modified successfully');
@@ -32,6 +36,7 @@ function TPSLPopup({ onClose, position }) {
             setLoading(false);
         }
     };
+
 
 
 
@@ -50,6 +55,7 @@ function TPSLPopup({ onClose, position }) {
                         onChange={(e) => setTakeProfit(e.target.value)}
                         className="w-full p-2 rounded bg-gray-800 border border-gray-700 placeholder:text-sm"
                         placeholder="Optional"
+                        defaultValue={0}
                     />
                 </label>
 
@@ -63,6 +69,7 @@ function TPSLPopup({ onClose, position }) {
                         onChange={(e) => setStopLoss(e.target.value)}
                         className="w-full p-2 rounded bg-gray-800 border border-gray-700 placeholder:text-sm"
                         placeholder="Optional"
+                        defaultValue={0}
                     />
                 </label>
 

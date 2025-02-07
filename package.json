@@ -21,6 +21,10 @@
     "win": {
       "target": "nsis",
       "icon": "src/assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
     }
   },
   "scripts": {

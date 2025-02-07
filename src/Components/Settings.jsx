@@ -103,13 +103,13 @@ function Settings() {
                     {/* Action Buttons */}
                     <div className="flex space-x-4 mt-6">
                         <button
-                            className="flex-1 p-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition"
+                            className="flex-1 p-3 bg-btn text-white rounded-xl hover:bg-btn-hover transition-all duration-300"
                             onClick={handleSaveKeys}
                         >
                             Save Keys
                         </button>
                         <button
-                            className="flex-1 p-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition"
+                            className="flex-1 p-3 bg-red-600 text-white rounded-xl hover:bg-red-800 transition-all duration-300"
                             onClick={handleDeleteKeys}
                         >
                             Delete Keys
@@ -137,7 +137,7 @@ function Settings() {
 
                 <div className="mt-6">
                     <button
-                        className="w-full p-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition"
+                        className="w-full p-3 bg-btn text-white rounded-xl hover:bg-btn-hover transition-all duration-300"
                         onClick={handleSaveInterval}
                     >
                         Save Refresh Interval

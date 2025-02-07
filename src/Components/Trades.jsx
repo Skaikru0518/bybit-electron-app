@@ -206,7 +206,7 @@ export default function Trades() {
                     <tbody>
                         {pendingOrders.length > 0 ? (
                             pendingOrders.map((order, index) => (
-                                <tr key={index} className='border-b border-border text-center hover:bg-tablse-hover transition-all duration-200 ease-in-out cursor-pointer'>
+                                <tr key={index} className='border-b border-border text-center hover:bg-table-hover transition-all duration-200 ease-in-out cursor-pointer'>
                                     <td className='p-2'>{order.symbol}</td>
                                     <td className='p-2' style={{ color: order.side === 'Buy' ? 'green' : 'red' }}>{order.side}</td>
                                     <td className='p-2'>{order.orderType}</td>

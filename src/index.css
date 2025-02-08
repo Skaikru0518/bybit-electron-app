@@ -7,3 +7,42 @@
 body {
     @apply font-sans;
 }
+
+@layer utilities {
+
+    /* Scrollbar width */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    /* Scrollbar track */
+    ::-webkit-scrollbar-track {
+        background: theme('colors.input-bg');
+        /* Uses Tailwind color */
+        border-radius: 10px;
+    }
+
+    /* Scrollbar thumb */
+    ::-webkit-scrollbar-thumb {
+        background: theme('colors.btn');
+        /* Uses Tailwind color */
+        border-radius: 10px;
+    }
+
+    /* Scrollbar thumb on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background: theme('colors.btn-hover');
+        /* Uses Tailwind color */
+    }
+
+    /* Hide scrollbar buttons */
+    ::-webkit-scrollbar-button {
+        display: none;
+    }
+
+    /* Scrollbar corner */
+    ::-webkit-scrollbar-corner {
+        background: transparent;
+    }
+}

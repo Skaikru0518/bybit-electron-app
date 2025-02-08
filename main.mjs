@@ -22,6 +22,9 @@ function createWindow() {
     const win = new BrowserWindow({
         width: 1377,
         height: 768,
+        minHeight: 600,
+        minWidth: 800,
+        frame: true,
         autoHideMenuBar: true,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),  // IPC kapcsolat

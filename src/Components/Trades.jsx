@@ -163,7 +163,7 @@ export default function Trades() {
                                         <td>{position.stopLoss > 0 ? formatNumber(position.stopLoss) + " USDT" : "/"}</td>
                                         <td>
                                             <button
-                                                className='my-3 bg-btn p-2 rounded-xl hover:bg-btn-hover hover:scale-105 transition-all duration-300 ease-in-out text-primary-text'
+                                                className='bg-[#6b05de] text-[#e0e0e0] border border-[#3b3663] px-4 py-2 my-3 rounded-md font-semibold text-sm transition-transform duration-200 ease-in-out hover:bg-[#5a04c7] hover:shadow-lg hover:scale-105'
                                                 onClick={() => handleModifyClick(position)}
                                             >
                                                 Modify
@@ -171,10 +171,10 @@ export default function Trades() {
                                         </td>
                                         <td>
                                             <button
-                                                className='my-3 bg-btn p-2 rounded-xl hover:bg-btn-hover hover:scale-105 transition-all duration-300 ease-in-out text-primary-text'
+                                                className='bg-[#6b05de] text-[#e0e0e0] border border-[#3b3663] px-4 py-2 my-3 rounded-md font-semibold text-sm transition-transform duration-200 ease-in-out hover:bg-[#5a04c7] hover:shadow-lg hover:scale-105'
                                                 onClick={() => handleMarketCloseClick(position)}
                                             >
-                                                Close Market
+                                                Close
                                             </button>
                                         </td>
                                     </tr>
@@ -214,7 +214,7 @@ export default function Trades() {
                                     <td className='p-2'>{order.qty}</td>
                                     <td className='p-2'>{order.orderStatus}</td>
                                     <td className='p-2'>
-                                        <button className=' bg-[#6b05de] text-[#e0e0e0] border border-[#3b3663] px-4 py-2 rounded-md font-semibold text-sm transition-transform duration-200 ease-in-out hover:bg-[#5a04c7] hover:shadow-lg hover:scale-105 active:bg- disabled:bg-[#555555] disabled:opacity-60 disabled:cursor-not-allowed' onClick={() => handleCancelOrder(order.orderId, order.symbol)}>
+                                        <button className='bg-[#6b05de] text-[#e0e0e0] border border-[#3b3663] px-4 py-2 rounded-md font-semibold text-sm transition-transform duration-200 ease-in-out hover:bg-[#5a04c7] hover:shadow-lg hover:scale-105 active:bg- disabled:bg-[#555555] disabled:opacity-60 disabled:cursor-not-allowed' onClick={() => handleCancelOrder(order.orderId, order.symbol)}>
                                             Cancel
                                         </button>
                                     </td>

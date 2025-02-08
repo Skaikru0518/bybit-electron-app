@@ -15,4 +15,5 @@ contextBridge.exposeInMainWorld('bybitAPI', {
     closePosition: (symbol) => ipcRenderer.invoke('close-position', symbol),
     fetchPendingOrders: (category) => ipcRenderer.invoke('fetch-pending-orders', category),
     cancelOrder: (orderId, symbol) => ipcRenderer.invoke('cancel-order', orderId, symbol),
+    changeInstance: (instance) => ipcRenderer.invoke('set-bybit-instance', instance),
 });

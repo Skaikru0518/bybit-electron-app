@@ -2,26 +2,27 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import axios from 'axios';
-import crypto, { sign } from 'crypto';
+import crypto from 'crypto';
 import Store from 'electron-store';
-import { time } from 'console';
-import { response } from 'express';
+
 
 // __dirname ESM-ben
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const BASE_URL = "https://api-demo.bybit.com";
 
 const store = new Store();
 
 // API kulcsok betöltése tárolóból (ha már elmentve)
 let apiKey = store.get('apiKey', '');
 let apiSecret = store.get('apiSecret', '');
+let BASE_URL = store.get('bybitInstance', 'https://api-demo.bybit.com')
+console.log('Curernt BASEURL:', BASE_URL)
 
 function createWindow() {
     const win = new BrowserWindow({
-        width: 1280,
-        height: 720,
+        width: 1377,
+        height: 768,
+        autoHideMenuBar: true,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),  // IPC kapcsolat
             webviewTag: true,
@@ -59,6 +60,22 @@ ipcMain.on('set-interval', (event, interval) => {
     store.set('intervalTime', interval);
     console.log('Interval saved to store!');
 });
+
+// Bybit instance beállítása
+ipcMain.handle('set-bybit-instance', async (event, instance) => {
+    console.log('Instance change received:', instance);
+
+    const instanceURL = instance === 'demo'
+        ? 'https://api-demo.bybit.com'
+        : 'https://api.bybit.com';
+
+    store.set('bybitInstance', instanceURL); // Save instance in Electron Store
+
+    console.log(`Bybit instance updated: ${instanceURL}`);
+
+    return { success: true, instance: instanceURL }; // Return success response
+});
+
 
 
 // Ár lekérdezése a Bybit API-ból
@@ -244,31 +261,40 @@ ipcMain.handle('update-leverage', async (event, { symbol, leverage }) => {
 
     // Prepare the payload for Bybit API
     const params = {
-        category: 'linear',  // Specify the category (linear or inverse)
-        symbol,  // The trading pair symbol
-        buy_leverage: leverage,  // Set the buy leverage
-        sell_leverage: leverage,  // Set the sell leverage
-        api_key: apiKey,  // The API key
-        timestamp,  // Current timestamp
+        category: 'linear',  // Specify category (linear = USDT perpetual)
+        symbol,  // Trading pair (e.g., "XRPUSDT")
+        buy_leverage: leverage.toString(),  // Convert leverage to string
+        sell_leverage: leverage.toString(),
+        api_key: apiKey,  // API key
+        timestamp,  // Timestamp for request
     };
 
-    // Create the signature using the provided API secret
+    // Generate API signature
     const signature = createSignature(params, apiSecret);
-    params.sign = signature;  // Attach the signature to the params
+    params.sign = signature;  // Attach the signature to the payload
+
+    console.log("🔹 Sending leverage update:", params); // Debug log
 
     try {
-        // Send the POST request to Bybit's set-leverage endpoint
-        const response = await axios.post(`${BASE_URL}/v5/position/set-leverage`, params, {
+        // Send POST request to Bybit API
+        const response = await axios.post(`${BASE_URL}/v5/position/set-leverage`, JSON.stringify(params), {
             headers: { 'Content-Type': 'application/json' },
         });
 
-        console.log('Leverage update response:', response.data);
+        // Check API response
+        if (response.data.retCode !== 0) {
+            console.error('❌ Leverage update failed:', response.data.retMsg);
+            return { error: response.data.retMsg };
+        }
+
+        console.log('✅ Leverage updated successfully:', response.data);
         return response.data;
     } catch (error) {
-        console.error('Error updating leverage:', error);
+        console.error('❌ Error updating leverage:', error.response ? error.response.data : error.message);
         return { error: 'Failed to update leverage' };
     }
 });
+
 
 // Modify TP/SL
 ipcMain.handle('modify-tpsl', async (event, { symbol, takeProfit, stopLoss }) => {
@@ -444,6 +470,7 @@ ipcMain.handle('get-settings', () => {
         apiKey: store.get('apiKey', ''),  // Retrieve the stored API key
         apiSecret: store.get('apiSecret', ''),  // Retrieve the stored API secret
         interval: store.get('intervalTime', 5000),  // Default interval value if not set
+        instance: store.get('bybitInstance', '')
     };
 });
 

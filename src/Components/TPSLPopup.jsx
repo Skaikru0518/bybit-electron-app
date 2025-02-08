@@ -76,7 +76,7 @@ function TPSLPopup({ onClose, position }) {
                 {/* Action Buttons */}
                 <div className="flex space-x-2">
                     <button
-                        className="flex-1 p-2 rounded bg-blue-600 text-white"
+                        className="flex-1 p-2 rounded bg-btn hover:bg-btn-hover transition-all duration-300 text-white"
                         onClick={handleSubmit}
                         disabled={loading}
                     >

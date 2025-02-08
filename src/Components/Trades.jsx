@@ -181,7 +181,7 @@ export default function Trades() {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="9" className="p-4 text-center text-muted-text">No open positions.</td>
+                                    <td colSpan="13" className="p-4 text-center text-muted-text">No open positions.</td>
                                 </tr>
                             )}
                         </tbody>

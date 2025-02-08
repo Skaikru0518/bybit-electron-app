@@ -6,6 +6,7 @@ function Settings() {
     const [refreshInterval, setRefreshInterval] = useState(5000); // Default to 5000ms
     const [successMessage, setSuccessMessage] = useState(''); // State for success message visibility
     const [errorMessage, setErrorMessage] = useState(''); // State for error message visibility
+    const [selectedInstance, setSelectedInstance] = useState('demo');
 
     // Load API keys and interval from Electron store when the component mounts
     useEffect(() => {
@@ -15,6 +16,7 @@ function Settings() {
             setApiKey(settings.apiKey || '');
             setApiSecret(settings.apiSecret || '');
             setRefreshInterval(settings.interval || 5000); // Load refresh interval from Electron store
+            setSelectedInstance(settings.instance || 'demo')
         };
 
         loadSettings();
@@ -54,6 +56,23 @@ function Settings() {
             setTimeout(() => setErrorMessage(''), 3000); // Hide after 3 seconds
         }
     };
+
+    const handleInstanceChange = (event) => {
+        setSelectedInstance(event.target.value);
+    };
+
+    const handleInstanceSave = async () => {
+        try {
+            const response = await window.bybitAPI.changeInstance(selectedInstance);
+            console.log(`Bybit instance changed to: ${response.instance}`);
+            setSuccessMessage('Chaged Instance! RESTART NEEDED!');
+            setTimeout(() => setSuccessMessage(''), 3000); // Hide after 3 seconds
+        } catch (error) {
+            console.error('Failed to change instance!', error);
+            setTimeout(() => setErrorMessage(''), 3000)
+        }
+    };
+
 
     return (
         <div className="w-full min-h-[calc(100vh-60px)] p-6 bg-gradient-to-r from-[#130f40] to-black text-primary-text flex flex-col items-center">
@@ -142,6 +161,32 @@ function Settings() {
                     >
                         Save Refresh Interval
                     </button>
+                </div>
+                <div className='mt-6'>
+                    <label htmlFor="bybitChange" className='block text-sm text-gray-400 mb-2'>
+                        Change Bybit Instance
+                    </label>
+                    <select
+                        name="bybitChange"
+                        id='bybitChange'
+                        className='w-full bg-gray-800 border border-gray-700 rounded-xl p-3'
+                        value={selectedInstance}
+                        onChange={handleInstanceChange}
+                    >
+                        <option hidden>Change instance</option>
+                        <option value="demo" >Bybit Demo</option>
+                        <option value="mainnet">Bybit Mainnet</option>
+                    </select>
+                    <p className='mt-2 text-sm text-gray-400'>Current instance: {selectedInstance == 'https://api.bybit.com' ? 'MAINNET' : 'DEMO'}</p>
+                    <p className='mt-2 text-sm text-red-500'>Remember to change your API key!</p>
+                    <div className='mt-3'>
+                        <button
+                            onClick={handleInstanceSave}
+                            className='w-full p-3 bg-btn text-white rounded-xl hover:bg-btn-hover transition-all duration-300'
+                        >
+                            Save Instance
+                        </button>
+                    </div>
                 </div>
             </div>
         </div >

@@ -19,7 +19,7 @@ export default function Dashboard() {
 
         // API adatok frissítése
         const fetchAccountData = async () => {
-            setApiStatus('Loading...');
+            setApiStatus('Updating...');
             const result = await window.bybitAPI.getWalletBalance('UNIFIED');
             // console.log(result)
 

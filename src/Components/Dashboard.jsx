@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import TradingView from './TradingView';
+import UpdateButton from './UpdateButton';
 
 export default function Dashboard() {
     const [accountEquity, setAccountEquity] = useState(null);
@@ -86,15 +87,9 @@ export default function Dashboard() {
                     <p className="text-lg">{openTradesCount}</p>
                 </div>
 
-                <button
-                    onClick={() => {
-                        fetchAccountData();
-                        fetchOpenTrades();
-                    }}
-                    className="mt-6 bg-btn hover:bg-btn-hover text-primary-text font-semibold py-2 rounded"
-                >
-                    Update
-                </button>
+                <div className='flex justify-center mt-4'>
+                    <UpdateButton className="" />
+                </div>
             </div>
 
             {/* TradingView - jobb oldal */}

@@ -13,7 +13,7 @@ export default function About() {
                     </p>
 
                     <h2 className="text-xl font-medium text-white">Version</h2>
-                    <p className="text-lg text-muted-text">v1.0.0</p>
+                    <p className="text-lg text-muted-text">v1.0.1</p>
 
                     <h2 className="text-xl font-medium text-white">Features:</h2>
                     <ul className="list-disc list-inside space-y-2">

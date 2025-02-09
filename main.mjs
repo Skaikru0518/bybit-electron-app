@@ -4,13 +4,23 @@ import { fileURLToPath } from 'url';
 import axios from 'axios';
 import crypto from 'crypto';
 import Store from 'electron-store';
-
+import pkg from 'electron-updater';
+const { autoUpdater } = pkg;
+import log from 'electron-log';
 
 // __dirname ESM-ben
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// new store to store values
 const store = new Store();
+
+let updateAvailable = false;
+autoUpdater.logger = log;
+autoUpdater.logger.transports.file.level = 'info';
+
+
+
 
 // API kulcsok betöltése tárolóból (ha már elmentve)
 let apiKey = store.get('apiKey', '');
@@ -78,8 +88,6 @@ ipcMain.handle('set-bybit-instance', async (event, instance) => {
 
     return { success: true, instance: instanceURL }; // Return success response
 });
-
-
 
 // Ár lekérdezése a Bybit API-ból
 ipcMain.handle('get-price', async (event, symbol) => {
@@ -479,7 +487,55 @@ ipcMain.handle('get-settings', () => {
 
 
 
+// Check for updates on app startup
+app.on('ready', () => {
+    autoUpdater.checkForUpdatesAndNotify();
+});
 
-app.whenReady().then(createWindow);
+
+
+// Listen for update events
+autoUpdater.on('checking-for-update', () => {
+    console.log('🔍 Checking for updates...');
+});
+autoUpdater.on('update-available', (info) => {
+    console.log(`✅ Update available: ${info.version}`);
+    updateAvailable = true;
+    // Send update status to the renderer process
+    BrowserWindow.getAllWindows().forEach(win => {
+        win.webContents.send('update-status', { available: true, version: info.version });
+    });
+});
+autoUpdater.on('update-not-available', () => {
+    console.log('🚀 No new updates found.');
+    updateAvailable = false;
+    // Send update status to the renderer process
+    BrowserWindow.getAllWindows().forEach(win => {
+        win.webContents.send('update-status', { available: false });
+    });
+});
+
+autoUpdater.on('error', (err) => {
+    console.error('❌ Update error:', err);
+});
+
+autoUpdater.on('download-progress', (progress) => {
+    console.log(`📥 Downloading update: ${progress.percent.toFixed(2)}%`);
+});
+
+autoUpdater.on('update-downloaded', () => {
+    console.log('✅ Update downloaded. Restarting app...');
+    autoUpdater.quitAndInstall();
+});
+
+ipcMain.handle('check-for-update', () => {
+    return updateAvailable
+})
+
+
+app.whenReady().then(() => {
+    createWindow();
+    autoUpdater.checkForUpdatesAndNotify();
+});
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
 app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });

@@ -7,7 +7,7 @@ function OrderPopup({ onClose }) {
         side: 'Buy',
         orderType: 'Limit',
         qty: '',
-        leverage: 25,
+        leverage: 1,
         orderValue: 0,
         price: '',
         triggerPrice: '',
@@ -53,7 +53,7 @@ function OrderPopup({ onClose }) {
                 setLoading(false);
             }
         }
-    }, 500); // 500ms debounce delay
+    }, 1000); // 1000ms debounce delay
 
     useEffect(() => {
         if (orderData.symbol) {

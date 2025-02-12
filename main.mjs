@@ -19,9 +19,6 @@ let updateAvailable = false;
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
 
-
-
-
 // API kulcsok betöltése tárolóból (ha már elmentve)
 let apiKey = store.get('apiKey', '');
 let apiSecret = store.get('apiSecret', '');
@@ -136,6 +133,7 @@ ipcMain.handle('get-wallet-balance', async (event, accountType = 'UNIFIED') => {
         return response.data.result.list[0];  // Visszaküldjük az első account balance adatot
     } catch (error) {
         console.error('API hiba:', error);
+        log.error('Wallet Balance API error:', error);
         return { error: 'Nem sikerült a wallet balance lekérdezése' };
     }
 });

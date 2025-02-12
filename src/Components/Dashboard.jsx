@@ -15,6 +15,7 @@ export default function Dashboard() {
         const loadSettings = async () => {
             const settings = await window.bybitAPI.getSettings();
             setRefreshInterval(settings.interval || 5000);
+            //console.log("Settings", settings)
         };
         loadSettings();
 
@@ -22,7 +23,7 @@ export default function Dashboard() {
         const fetchAccountData = async () => {
             setApiStatus('Updating...');
             const result = await window.bybitAPI.getWalletBalance('UNIFIED');
-            // console.log(result)
+            //console.log("Result", result)
 
             if (result && !result.error) {
                 setAccountEquity(result.totalEquity);

@@ -1,7 +1,7 @@
 {
   "name": "zen-trader",
   "private": true,
-  "version": "1.0.2",
+  "version": "1.0.3",
   "type": "module",
   "main": "main.mjs",
   "author": "Skaikru",
@@ -54,6 +54,7 @@
     "electron-store": "^10.0.1",
     "electron-updater": "^6.3.9",
     "express": "^4.21.2",
+    "framer-motion": "^12.6.3",
     "lodash.debounce": "^4.0.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

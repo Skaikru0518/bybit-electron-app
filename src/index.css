@@ -3,46 +3,48 @@
 @tailwind components;
 @tailwind utilities;
 
-
 body {
-    @apply font-sans;
+  @apply font-sans;
 }
 
 @layer utilities {
+  /* Scrollbar width */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
 
-    /* Scrollbar width */
-    ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-    }
+  /* Scrollbar track */
+  ::-webkit-scrollbar-track {
+    background: theme('colors.input-bg');
+    /* Uses Tailwind color */
+    border-radius: 10px;
+  }
 
-    /* Scrollbar track */
-    ::-webkit-scrollbar-track {
-        background: theme('colors.input-bg');
-        /* Uses Tailwind color */
-        border-radius: 10px;
-    }
+  /* Scrollbar thumb */
+  ::-webkit-scrollbar-thumb {
+    background: theme('colors.btn');
+    /* Uses Tailwind color */
+    border-radius: 10px;
+  }
 
-    /* Scrollbar thumb */
-    ::-webkit-scrollbar-thumb {
-        background: theme('colors.btn');
-        /* Uses Tailwind color */
-        border-radius: 10px;
-    }
+  /* Scrollbar thumb on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: theme('colors.btn-hover');
+    /* Uses Tailwind color */
+  }
 
-    /* Scrollbar thumb on hover */
-    ::-webkit-scrollbar-thumb:hover {
-        background: theme('colors.btn-hover');
-        /* Uses Tailwind color */
-    }
+  /* Hide scrollbar buttons */
+  ::-webkit-scrollbar-button {
+    display: none;
+  }
 
-    /* Hide scrollbar buttons */
-    ::-webkit-scrollbar-button {
-        display: none;
-    }
+  /* Scrollbar corner */
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
 
-    /* Scrollbar corner */
-    ::-webkit-scrollbar-corner {
-        background: transparent;
-    }
+.conatiner-1 {
+  @apply bg-gradient-to-tr from-[#130f40] to-[#000000] shadow-md shadow-[rgba(31,38.125,.37)] backdrop-blur-sm border rounded-xl p-8;
 }

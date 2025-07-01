@@ -27,6 +27,12 @@ The **Bybit Trader App** is a desktop application built with **Electron**, **Rea
 
 ---
 
+## Screenshots
+
+![screenshot1](https://github.com/Skaikru0518/bybit-electron-app/blob/main/screenshots/dashboard.png)
+![screenshot2](https://github.com/Skaikru0518/bybit-electron-app/blob/main/screenshots/settings.png)
+![screenshot3](https://github.com/Skaikru0518/bybit-electron-app/blob/main/screenshots/trades.png)
+
 ## Prerequisites
 
 Before running the app, ensure you have the following installed:

@@ -8,6 +8,15 @@ The **Bybit Trader App** is a desktop application built with **Electron**, **Rea
 
 ---
 
+## Technologies
+
+- Electron
+- Node.js
+- JavaScript
+- Bybit API v5
+
+---
+
 ## Features
 
 - **Trading Interface**: Place buy/sell orders directly from the app.
@@ -27,6 +36,8 @@ Before running the app, ensure you have the following installed:
 - [Git](https://git-scm.com/)
 
 ---
+
+
 
 ## Installation
 
@@ -70,5 +81,8 @@ Before running the app, ensure you have the following installed:
 3. Commit your changes and push to your fork.
 4. Submit a pull request with a detailed descrpition.
 
+---
+## License
 
+MIT
 

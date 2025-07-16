@@ -10,8 +10,10 @@ import {
   Wifi,
   WifiOff,
   ChartArea,
+  Loader,
 } from 'lucide-react';
 import { Badge } from '../ui/badge';
+import { useTradingData } from '../providers/TradingDataProvider';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: TrendingUp },
@@ -22,8 +24,15 @@ const navigation = [
 
 const Sidebar = ({ open, onToggle }) => {
   const location = useLocation();
-  const isConnected = true;
-
+  const { walletBalance, isLoading, isConnected } = useTradingData();
+  const fetchInfo = async () => {
+    try {
+      const response = await window.api.getAllPositions('linear', 'USDT');
+      console.log(response.list);
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
   return (
     <div
       className={cn(
@@ -63,7 +72,7 @@ const Sidebar = ({ open, onToggle }) => {
             >
               {isConnected ? (
                 <>
-                  <Wifi className="w-2 h-2 animate-pulse text-green-700" />
+                  <Wifi className="w-2 h-2 animate-pulse text-green-300" />
                   {open ? 'Connected' : ''}
                 </>
               ) : (
@@ -79,16 +88,41 @@ const Sidebar = ({ open, onToggle }) => {
               <div className="space-y-2 text-xs mt-2 w-full">
                 <div className="flex justify-between items-center gap-4">
                   <span className="text-muted-foreground">Balance: </span>
-                  <span className="text-green-500 font-medium">$12,000.60</span>
+                  <span className="text-green-500 font-medium">
+                    {isLoading ? (
+                      <Loader className="animate-spin w-4 h-4" />
+                    ) : (
+                      `$${walletBalance.totalAvailableBalance.toLocaleString()}`
+                    )}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">P&L: </span>
-                  <span className="text-green-500 font-medium">+$345.44</span>
+                  <span
+                    className={`font-medium ${
+                      parseFloat(walletBalance.totalPerpUPL) >= 0
+                        ? 'text-green-500'
+                        : 'text-red-500'
+                    }`}
+                  >
+                    {isLoading ? (
+                      <Loader className="animate-spin w-4 h-4" />
+                    ) : (
+                      `${
+                        parseFloat(walletBalance.totalPerpUPL) >= 0 ? '+' : ''
+                      }$${parseFloat(
+                        walletBalance.totalPerpUPL,
+                      ).toLocaleString()}`
+                    )}
+                  </span>
                 </div>
               </div>
             )}
           </div>
         </div>
+      </div>
+      <div>
+        <Button onClick={() => fetchInfo()}>fetch</Button>
       </div>
 
       {/* navigation menu */}

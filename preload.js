@@ -4,6 +4,8 @@ contextBridge.exposeInMainWorld('api', {
   //get
   getAccountInfo: (accountType) =>
     ipcRenderer.invoke('getAccountInfo', accountType),
+  getWalletBalance: (accountType) =>
+    ipcRenderer.invoke('getWalletBalance', accountType),
   getPrice: (category, symbol) =>
     ipcRenderer.invoke('getPrice', category, symbol),
   getAllOrders: (category, settleCoin) =>

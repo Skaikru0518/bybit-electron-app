@@ -9,13 +9,16 @@ import {
 const TradingDataContext = createContext();
 
 export function TradingDataProvider({ children }) {
-  const [accountData, setAccountData] = useState({
-    balance: 0,
-    unrealizedPnl: 0,
-    todaysPnl: 0,
-    isConnected: false,
+  const [walletBalance, setWalletBalance] = useState({
+    totalEquity: 0,
+    totalWalletBalance: 0,
+    totalAvailableBalance: 0,
+    totalPerpUPL: 0,
+    accountType: '',
+    coins: [],
   });
 
+  const [isConnected, setIsConnected] = useState(false);
   const [tradesData, setTradesData] = useState([]);
   const [refreshInterval, setRefreshInterval] = useState(5000); // Default 5 seconds
   const [isLoading, setIsLoading] = useState(false);
@@ -36,23 +39,29 @@ export function TradingDataProvider({ children }) {
     loadRefreshInterval();
   }, []);
 
-  // Function to fetch account data
-  const fetchAccountData = useCallback(async () => {
+  // Function to fetch account balance
+  const fetchAccountBalance = useCallback(async () => {
     try {
       setIsLoading(true);
-      // This will be replaced with actual API call
-      const accountInfo = await window.api?.getAccountInfo?.();
-      if (accountInfo) {
-        setAccountData({
-          balance: accountInfo.balance || 0,
-          unrealizedPnl: accountInfo.unrealizedPnl || 0,
-          todaysPnl: accountInfo.todaysPnl || 0,
-          isConnected: accountInfo.isConnected || false,
+      const response = await window.api?.getWalletBalance('unified');
+      if (response && response.list && response.list[0]) {
+        const walletData = response.list[0];
+        setWalletBalance({
+          totalEquity: parseFloat(walletData.totalEquity) || 0,
+          totalWalletBalance: parseFloat(walletData.totalWalletBalance) || 0,
+          totalAvailableBalance:
+            parseFloat(walletData.totalAvailableBalance) || 0,
+          totalPerpUPL: parseFloat(walletData.totalPerpUPL) || 0,
+          accountType: walletData.accountType || '',
+          coins: walletData.coin || [],
         });
+        setIsConnected(true);
+      } else {
+        setIsConnected(false);
       }
     } catch (error) {
-      console.error('Failed to fetch account data:', error);
-      setAccountData((prev) => ({ ...prev, isConnected: false }));
+      console.error('Failed to fetch account balance:', error);
+      setIsConnected(false);
     } finally {
       setIsLoading(false);
       setLastUpdated(new Date());
@@ -62,10 +71,9 @@ export function TradingDataProvider({ children }) {
   // Function to fetch trades data
   const fetchTradesData = useCallback(async () => {
     try {
-      // This will be replaced with actual API call
-      const trades = await window.api?.getTrades?.();
+      const trades = await window.api?.getAllPositions?.('linear', 'USDT');
       if (trades) {
-        setTradesData(trades);
+        setTradesData(trades.list);
       }
     } catch (error) {
       console.error('Failed to fetch trades data:', error);
@@ -74,8 +82,8 @@ export function TradingDataProvider({ children }) {
 
   // Function to fetch all data
   const fetchAllData = useCallback(async () => {
-    await Promise.all([fetchAccountData(), fetchTradesData()]);
-  }, [fetchAccountData, fetchTradesData]);
+    await Promise.all([fetchAccountBalance(), fetchTradesData()]);
+  }, [fetchAccountBalance, fetchTradesData]);
 
   // Function to update refresh interval
   const updateRefreshInterval = useCallback(async (newInterval) => {
@@ -89,12 +97,8 @@ export function TradingDataProvider({ children }) {
 
   // Set up interval for real-time updates
   useEffect(() => {
-    // Initial fetch
     fetchAllData();
-
-    // Set up interval
     const interval = setInterval(fetchAllData, refreshInterval);
-
     return () => clearInterval(interval);
   }, [refreshInterval, fetchAllData]);
 
@@ -105,8 +109,9 @@ export function TradingDataProvider({ children }) {
 
   const value = {
     // Data
-    accountData,
+    walletBalance,
     tradesData,
+    isConnected,
 
     // State
     isLoading,
@@ -118,7 +123,7 @@ export function TradingDataProvider({ children }) {
     updateRefreshInterval,
 
     // Individual fetch functions
-    fetchAccountData,
+    fetchAccountBalance,
     fetchTradesData,
   };
 

@@ -20,7 +20,9 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Edit, X, Target, MoreHorizontal } from 'lucide-react';
+import { useTradingData } from '../providers/TradingDataProvider';
 const Trades = () => {
+  const { tradesData } = useTradingData();
   const [trades] = useState([
     {
       id: '1',
@@ -89,7 +91,8 @@ const Trades = () => {
       <div className="flex items-center justify-between w-full">
         <h2 className="text-3xl font-bold tracking-tight">Open Position</h2>
         <Badge variant={'outline'}>
-          {trades?.length} Active Position{trades.length !== 1 ? 's' : ''}
+          {tradesData?.length} Active Position
+          {tradesData.length !== 1 ? 's' : ''}
         </Badge>
       </div>
 
@@ -116,54 +119,72 @@ const Trades = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {trades?.map((trade) => (
-                  <TableRow key={trade.id}>
+                {tradesData?.map((trade, idx) => (
+                  <TableRow key={trade.symbol + idx}>
                     <TableCell className={'font-medium'}>
                       {trade.symbol}
                     </TableCell>
                     <TableCell>
                       <Badge
-                        variant={
-                          trade.side === 'long' ? 'default' : 'destructive'
+                        className={
+                          trade.side === 'Buy'
+                            ? 'bg-green-500 text-black'
+                            : 'bg-red-500 text-white'
                         }
                       >
                         {trade.side.toUpperCase()}
                       </Badge>
                     </TableCell>
-                    <TableCell>{trade.size}</TableCell>
-                    <TableCell>$ {trade.entryPrice.toLocaleString()}</TableCell>
+                    <TableCell>{parseFloat(trade.size)}</TableCell>
                     <TableCell>
-                      $ {trade.currentPrice.toLocaleString()}
+                      $ {parseFloat(trade.avgPrice).toLocaleString()}
+                    </TableCell>
+                    <TableCell>
+                      $ {parseFloat(trade.markPrice).toLocaleString()}
                     </TableCell>
                     <TableCell>
                       <div
                         className={`font-medium ${
-                          trade.pnl >= 0 ? 'text-green-500' : 'text-red-500'
+                          parseFloat(trade.unrealisedPnl) >= 0
+                            ? 'text-green-500'
+                            : 'text-red-500'
                         }`}
                       >
-                        $ {trade.pnl.toFixed(2)}
+                        $ {parseFloat(trade.unrealisedPnl).toFixed(2)}
                       </div>
+                      {/* pnlPercentage nincs, de számolhatsz ilyet: */}
                       <div
                         className={`text-xs ${
-                          trade.pnl >= 0 ? 'text-green-500' : 'text-red-500'
+                          parseFloat(trade.unrealisedPnl) >= 0
+                            ? 'text-green-500'
+                            : 'text-red-500'
                         }`}
                       >
-                        {trade.pnlPercentage >= 0 ? '+' : ''}
-                        {trade.pnlPercentage.toFixed(2)} %
+                        {trade.positionIM && parseFloat(trade.positionIM) !== 0
+                          ? (
+                              (parseFloat(trade.unrealisedPnl) /
+                                parseFloat(trade.positionIM)) *
+                              100
+                            ).toFixed(2) + ' %'
+                          : '-'}
                       </div>
                     </TableCell>
                     <TableCell>
                       {trade.takeProfit
-                        ? `$${trade.takeProfit.toLocaleString()}`
-                        : ''}
-                    </TableCell>
-                    <TableCell>
-                      {trade.stopLoss
-                        ? `$${trade.stopLoss.toLocaleString()}`
+                        ? `$${Number(trade.takeProfit).toLocaleString()}`
                         : '-'}
                     </TableCell>
                     <TableCell>
-                      {new Date(trade.timestamp).toLocaleTimeString()}
+                      {trade.stopLoss
+                        ? `$${Number(trade.stopLoss).toLocaleString()}`
+                        : '-'}
+                    </TableCell>
+                    <TableCell>
+                      {trade.createdTime
+                        ? new Date(
+                            Number(trade.createdTime),
+                          ).toLocaleTimeString()
+                        : ''}
                     </TableCell>
                     <TableCell>
                       <DropdownMenu>

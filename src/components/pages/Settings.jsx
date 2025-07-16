@@ -32,13 +32,15 @@ import {
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { Switch } from '../ui/switch';
+import { useTradingData } from '../providers/TradingDataProvider';
 
 const Settings = () => {
   const { theme, setTheme } = useTheme();
+  const { isConnected, refreshData } = useTradingData(); // <-- Csak innen használjuk az isConnected-et
   const [apiKey, setApiKey] = useState('');
   const [apiSecret, setApiSecret] = useState('');
   const [environment, setEnvironment] = useState('demo');
-  const [isConnected, setIsConnected] = useState(false);
+  // const [isConnected, setIsConnected] = useState(false); <-- ELTÁVOLÍTVA!
   const [compactMode, setCompactMode] = useState(false);
   const [showBalanceInHeader, setShowBalanceInHeader] = useState(true);
   const [soundNotifications, setSoundNotifications] = useState(false);
@@ -95,28 +97,39 @@ const Settings = () => {
       await window.api.setStore('apiKey', apiKey);
       await window.api.setStore('apiSecret', apiSecret);
       await window.api.setStore('isDemo', environment);
-      toast.success('Settings saved succesfully');
+      toast.success('Settings saved successfully');
     } catch (error) {
       console.error('Failed to save settings', error);
       toast.error('Failed to save settings');
     }
   };
 
-  const handleTestConnection = () => {
-    setIsConnected(true);
-    toast.success('Connection succesful');
+  const handleTestConnection = async () => {
+    try {
+      // Frissítjük az adatokat, ami automatikusan teszteli a kapcsolatot
+      await refreshData();
+      if (isConnected) {
+        toast.success('Connection successful');
+      } else {
+        toast.error('Connection failed');
+      }
+    } catch (error) {
+      console.error('Connection test failed:', error);
+      toast.error('Connection test failed');
+    }
   };
 
   const handleEnvironmentChange = async (value) => {
     setEnvironment(String(value));
-    setIsConnected(false);
     try {
       await window.api.setStore('isDemo', value);
-      var env = value === 'true' ? 'demo' : 'mainnet';
+      const env = value === 'true' ? 'demo' : 'mainnet';
+      toast.info(`Switched to ${env} environment`);
+      // Környezet váltás után frissítjük a kapcsolatot
+      setTimeout(() => refreshData(), 500);
     } catch (error) {
       console.warn('Failed to change environment', error);
     }
-    toast.info(`Switched to ${env} environment`);
   };
 
   const handleAppearanceSettings = async () => {
@@ -237,6 +250,10 @@ const Settings = () => {
                   Test Connection
                 </Button>
               </div>
+              <p className="text-muted-foreground font-medium">
+                Restart the application after saving API keys or changing
+                environment!
+              </p>
             </CardContent>
           </Card>
         </TabsContent>
@@ -285,7 +302,7 @@ const Settings = () => {
                 </div>
                 <Switch
                   checked={compactMode}
-                  onCheckedChange={(checked) =>
+                  onCheckedChange={() =>
                     hanldeToggleSetting(
                       'compactMode',
                       compactMode,
@@ -303,7 +320,7 @@ const Settings = () => {
                 </div>
                 <Switch
                   checked={showBalanceInHeader}
-                  onCheckedChange={(checked) =>
+                  onCheckedChange={() =>
                     hanldeToggleSetting(
                       'showBalanceInHeader',
                       showBalanceInHeader,
@@ -321,7 +338,7 @@ const Settings = () => {
                 </div>
                 <Switch
                   checked={soundNotifications}
-                  onCheckedChange={(checked) =>
+                  onCheckedChange={() =>
                     hanldeToggleSetting(
                       'soundNotifications',
                       soundNotifications,

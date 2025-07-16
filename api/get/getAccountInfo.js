@@ -5,6 +5,7 @@ const getAccountInfo = async (event, accountType) => {
     const accountInfo = await client.getAccountInfo({
       accountType: accountType, // unified
     });
+    console.log('account type:', accountType);
     return accountInfo.result;
   } catch (error) {
     throw new Error(error);

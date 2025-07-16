@@ -15,7 +15,7 @@ import { Badge } from '../ui/badge';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: TrendingUp },
-  { name: 'Charts', href: '/charts', icon: ChartArea },
+  { name: 'Tradingview', href: '/tradingview', icon: ChartArea },
   { name: 'Trades', href: '/trades', icon: BarChart3 },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];

@@ -1,40 +1,20 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
-import { TrendingUp, TrendingDown, DollarSign, Activity } from 'lucide-react';
+import { stats } from '../mock/stats.js';
+import {
+  assetsData,
+  cumulativeData,
+  VolumeData,
+  winLossData,
+} from '../mock/chartData.js';
+import WinLossPieChart from '../reusable/charts/WinLossPieChart';
+import VolumeChart from '../reusable/charts/VolumeChart';
+import AssetDistribuitonChart from '../reusable/charts/AssetDistributionChart';
+import PnLChart from '../reusable/charts/PnLChart';
+import PnLBarChart from '../reusable/charts/PnLBarChart';
 
 const Dashboard = () => {
-  const stats = [
-    {
-      title: 'Total Balance',
-      value: '$12,345.67',
-      change: '+2.5%',
-      icon: DollarSign,
-      positive: true,
-    },
-    {
-      title: 'Unrealized P&L',
-      value: '+$234.56',
-      change: '+5.2%',
-      icon: TrendingUp,
-      positive: true,
-    },
-    {
-      title: 'Open Positions',
-      value: '3',
-      change: 'Active',
-      icon: Activity,
-      positive: true,
-    },
-    {
-      title: "Today's P&L",
-      value: '-$45.23',
-      change: '-1.2%',
-      icon: TrendingDown,
-      positive: false,
-    },
-  ];
-
   return (
     <div className="flex-1 space-y-6 p-6 w-full">
       <div className="flex items-center justify-between w-full">
@@ -67,6 +47,22 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         ))}
+      </div>
+      <div className="flex flex-col w-full">
+        <div className="flex w-full">
+          <div className="w-full flex flex-col items-center justify-center">
+            <p>W/L Ratio</p>
+            <WinLossPieChart data={winLossData} />
+          </div>
+          <div className="w-full flex flex-col items-center justify-center">
+            <p>Asset distribution</p>
+            <AssetDistribuitonChart data={assetsData} />
+          </div>
+        </div>
+
+        <PnLChart data={cumulativeData} />
+        <PnLBarChart data={cumulativeData} />
+        <VolumeChart data={VolumeData} />
       </div>
 
       {/* Tradingview Chart */}

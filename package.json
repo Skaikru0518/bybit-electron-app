@@ -13,7 +13,8 @@
     "preview": "vite preview",
     "electron": "cross-env NODE_ENV=development electron .",
     "dev": "concurrently \"npm run electron\" \"npm run vite\" ",
-    "dist": "npm run build && electron-builder"
+    "dist": "npm run build && electron-builder",
+    "unpacked": "npm run build && electron-builder --dir --win"
   },
   "build": {
     "appId": "com.zentrader.app",
@@ -66,6 +67,7 @@
     "next-themes": "^0.4.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "recharts": "^3.1.0",
     "sonner": "^2.0.6",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.11"

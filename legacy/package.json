@@ -1,0 +1,85 @@
+{
+  "name": "zen-trader",
+  "private": true,
+  "version": "1.0.3",
+  "type": "module",
+  "main": "main.mjs",
+  "author": "Skaikru",
+  "license": "MIT",
+  "description": "A powerful, lightweight and efficient trading application.",
+  "build": {
+    "appId": "com.zentrader.app",
+    "productName": "ZenTrader",
+    "artifactName": "${productName}-Setup-${version}.${ext}",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Skaikru0518",
+        "repo": "bybit-electron-app"
+      }
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "main.mjs",
+      "preload.js",
+      "src/assets/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "src/assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "electron": "cross-env NODE_ENV=development electron .",
+    "dist": "npm run build && electron-builder",
+    "dev:electron": "concurrently \"npm run dev\" \"npm run electron\""
+  },
+  "dependencies": {
+    "axios": "^1.7.9",
+    "electron-log": "^5.3.0",
+    "electron-store": "^10.0.1",
+    "electron-updater": "^6.3.9",
+    "express": "^4.21.2",
+    "framer-motion": "^12.6.3",
+    "lodash.debounce": "^4.0.8",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.1.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.19.0",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.2",
+    "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
+    "electron": "^34.0.2",
+    "electron-builder": "^25.1.8",
+    "electron-reload": "^2.0.0-alpha.1",
+    "eslint": "^9.19.0",
+    "eslint-plugin-react": "^7.37.4",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.18",
+    "express": "^4.21.2",
+    "globals": "^15.14.0",
+    "postcss": "^8.5.1",
+    "tailwindcss": "^3.4.17",
+    "vite": "^6.1.0"
+  }
+}

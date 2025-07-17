@@ -23,47 +23,6 @@ import { Edit, X, Target, MoreHorizontal } from 'lucide-react';
 import { useTradingData } from '../providers/TradingDataProvider';
 const Trades = () => {
   const { tradesData } = useTradingData();
-  const [trades] = useState([
-    {
-      id: '1',
-      symbol: 'BTCUSDT',
-      side: 'long',
-      size: 0.5,
-      entryPrice: 43500,
-      currentPrice: 44200,
-      pnl: 350,
-      pnlPercentage: 1.61,
-      takeProfit: 45000,
-      stopLoss: 42000,
-      timestamp: '2024-01-15T10:30:00Z',
-    },
-    {
-      id: '2',
-      symbol: 'ETHUSDT',
-      side: 'short',
-      size: 2.5,
-      entryPrice: 2650,
-      currentPrice: 2580,
-      pnl: 175,
-      pnlPercentage: 2.64,
-      takeProfit: 2500,
-      stopLoss: 2750,
-      timestamp: '2024-01-15T09:15:00Z',
-    },
-    {
-      id: '3',
-      symbol: 'ADAUSDT',
-      side: 'long',
-      size: 1000,
-      entryPrice: 0.45,
-      currentPrice: 0.42,
-      pnl: -30,
-      pnlPercentage: -6.67,
-      takeProfit: 0.5,
-      stopLoss: 0.4,
-      timestamp: '2024-01-15T08:45:00Z',
-    },
-  ]);
   const [editingTrade, setEditingTrade] = useState(null);
   const [takeProfit, setTakeProfit] = useState('');
   const [stopLoss, setStopLoss] = useState('');
@@ -108,13 +67,14 @@ const Trades = () => {
                 <TableRow>
                   <TableHead>Symbol</TableHead>
                   <TableHead>Side</TableHead>
+                  <TableHead>Leverage</TableHead>
                   <TableHead>Size</TableHead>
                   <TableHead>Entry Price</TableHead>
                   <TableHead>Current Price</TableHead>
                   <TableHead>P&L</TableHead>
+                  <TableHead>Realized P&L</TableHead>
                   <TableHead>Take Profit</TableHead>
                   <TableHead>Stop Loss</TableHead>
-                  <TableHead>Time</TableHead>
                   <TableHead className={'w-[70px]'}>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -135,6 +95,7 @@ const Trades = () => {
                         {trade.side.toUpperCase()}
                       </Badge>
                     </TableCell>
+                    <TableCell>{trade.leverage}x</TableCell>
                     <TableCell>{parseFloat(trade.size)}</TableCell>
                     <TableCell>
                       $ {parseFloat(trade.avgPrice).toLocaleString()}
@@ -152,7 +113,8 @@ const Trades = () => {
                       >
                         $ {parseFloat(trade.unrealisedPnl).toFixed(2)}
                       </div>
-                      {/* pnlPercentage nincs, de számolhatsz ilyet: */}
+
+                      {/* pnlPercentage */}
                       <div
                         className={`text-xs ${
                           parseFloat(trade.unrealisedPnl) >= 0
@@ -170,22 +132,27 @@ const Trades = () => {
                       </div>
                     </TableCell>
                     <TableCell>
+                      <div
+                        className={`${
+                          trade.curRealisedPnl >= 0
+                            ? 'text-green-500'
+                            : 'text-red-500'
+                        }`}
+                      >
+                        $ {parseFloat(trade.curRealisedPnl).toLocaleString()}
+                      </div>
+                    </TableCell>
+                    <TableCell>
                       {trade.takeProfit
-                        ? `$${Number(trade.takeProfit).toLocaleString()}`
+                        ? `$ ${Number(trade.takeProfit).toLocaleString()}`
                         : '-'}
                     </TableCell>
                     <TableCell>
                       {trade.stopLoss
-                        ? `$${Number(trade.stopLoss).toLocaleString()}`
+                        ? `$ ${Number(trade.stopLoss).toLocaleString()}`
                         : '-'}
                     </TableCell>
-                    <TableCell>
-                      {trade.createdTime
-                        ? new Date(
-                            Number(trade.createdTime),
-                          ).toLocaleTimeString()
-                        : ''}
-                    </TableCell>
+
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>

@@ -23,6 +23,7 @@ export function TradingDataProvider({ children }) {
   const [refreshInterval, setRefreshInterval] = useState(5000); // Default 5 seconds
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [yesterdaysEquity, setYesterdaysEquity] = useState(null);
 
   // Load refresh interval from Electron store on mount
   useEffect(() => {
@@ -38,6 +39,63 @@ export function TradingDataProvider({ children }) {
     };
     loadRefreshInterval();
   }, []);
+
+  useEffect(() => {
+    const loadYesterdayEquity = async () => {
+      try {
+        const storedYesterdayEquity = await window.api.getStore(
+          'yesterdayEquity',
+        );
+        console.log('Store-ból betöltött érték:', storedYesterdayEquity); // Debug
+        if (
+          storedYesterdayEquity !== null &&
+          storedYesterdayEquity !== undefined
+        ) {
+          setYesterdaysEquity(parseFloat(storedYesterdayEquity));
+          console.log(
+            'Context state-be beállítva:',
+            parseFloat(storedYesterdayEquity),
+          ); // Debug
+        }
+      } catch (error) {
+        console.error('Failed to load yesterdayEquity:', error);
+      }
+    };
+    loadYesterdayEquity();
+  }, []);
+
+  useEffect(() => {
+    const saveEquitySnapshot = async () => {
+      try {
+        const today = new Date().toISOString().slice(0, 10);
+        const lastSnapshotDate = await window.api.getStore(
+          'equitySnapshotDate',
+        );
+
+        const storedYesterdayEquity = await window.api.getStore(
+          'yesterdayEquity',
+        );
+        if (
+          storedYesterdayEquity !== null &&
+          storedYesterdayEquity !== undefined
+        ) {
+          setYesterdaysEquity(parseFloat(storedYesterdayEquity));
+        }
+
+        if (lastSnapshotDate !== today && walletBalance.totalEquity) {
+          await window.api.setStore(
+            'yesterdayEquity',
+            walletBalance.totalEquity,
+          );
+          await window.api.setStore('equitySnapshotDate', today);
+          setYesterdaysEquity(parseFloat(walletBalance.totalEquity));
+        }
+      } catch (error) {
+        console.error('Failed to save/load yesterdayEquity', error);
+      }
+    };
+    saveEquitySnapshot();
+  }, [walletBalance.totalEquity]);
 
   // Function to fetch account balance
   const fetchAccountBalance = useCallback(async () => {
@@ -112,6 +170,7 @@ export function TradingDataProvider({ children }) {
     walletBalance,
     tradesData,
     isConnected,
+    yesterdaysEquity,
 
     // State
     isLoading,

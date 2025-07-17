@@ -28,7 +28,7 @@ const Sidebar = ({ open, onToggle }) => {
   const fetchInfo = async () => {
     try {
       const response = await window.api.getAllPositions('linear', 'USDT');
-      console.log(response.list);
+      console.log(walletBalance);
     } catch (error) {
       throw new Error(error);
     }

@@ -36,11 +36,10 @@ import { useTradingData } from '../providers/TradingDataProvider';
 
 const Settings = () => {
   const { theme, setTheme } = useTheme();
-  const { isConnected, refreshData } = useTradingData(); // <-- Csak innen használjuk az isConnected-et
+  const { isConnected, refreshData } = useTradingData();
   const [apiKey, setApiKey] = useState('');
   const [apiSecret, setApiSecret] = useState('');
   const [environment, setEnvironment] = useState('demo');
-  // const [isConnected, setIsConnected] = useState(false); <-- ELTÁVOLÍTVA!
   const [compactMode, setCompactMode] = useState(false);
   const [showBalanceInHeader, setShowBalanceInHeader] = useState(true);
   const [soundNotifications, setSoundNotifications] = useState(false);
@@ -106,7 +105,6 @@ const Settings = () => {
 
   const handleTestConnection = async () => {
     try {
-      // Frissítjük az adatokat, ami automatikusan teszteli a kapcsolatot
       await refreshData();
       if (isConnected) {
         toast.success('Connection successful');

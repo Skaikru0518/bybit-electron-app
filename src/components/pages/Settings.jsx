@@ -36,13 +36,16 @@ import { useTradingData } from '../providers/TradingDataProvider';
 
 const Settings = () => {
   const { theme, setTheme } = useTheme();
-  const { isConnected, refreshData } = useTradingData();
+  const { isConnected, refreshData, refreshInterval, updateRefreshInterval } =
+    useTradingData();
   const [apiKey, setApiKey] = useState('');
   const [apiSecret, setApiSecret] = useState('');
   const [environment, setEnvironment] = useState('demo');
   const [compactMode, setCompactMode] = useState(false);
   const [showBalanceInHeader, setShowBalanceInHeader] = useState(true);
   const [soundNotifications, setSoundNotifications] = useState(false);
+  const [selectedRefreshInterval, setSelectedRefreshInterval] =
+    useState(refreshInterval);
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -152,6 +155,18 @@ const Settings = () => {
     }
   };
 
+  const handleRefreshIntervalChange = async (value) => {
+    const interval = parseInt(value);
+    try {
+      setSelectedRefreshInterval(interval);
+      await updateRefreshInterval(interval);
+      toast.success('Refresh interval updated');
+    } catch (error) {
+      console.warn('Failed to change refresh interval', error);
+      toast.error('Failed to change refresh interval');
+    }
+  };
+
   return (
     <div className="flex-1 space-y-6 p-6 w-full">
       <div className="flex items-center justify-between w-full">
@@ -187,7 +202,29 @@ const Settings = () => {
                 Configure your Bybit API credentials for trading
               </CardDescription>
             </CardHeader>
+
+            {/* DATA REFRESH INTERVAL */}
             <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="refreshInterval">Data Refresh Interval</Label>
+                <Select
+                  value={selectedRefreshInterval.toString()}
+                  onValueChange={handleRefreshIntervalChange}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="5000">5 seconds</SelectItem>
+                    <SelectItem value="10000">10 seconds</SelectItem>
+                    <SelectItem value="30000">30 seconds</SelectItem>
+                  </SelectContent>
+                  <p className="text-xs text-muted-foreground">
+                    How often to refresh account and trading data
+                  </p>
+                </Select>
+              </div>
+
               {/* CHANGE ENVIRONMENT */}
               <div className="space-y-2">
                 <Label htmlFor="environment">Environment</Label>
@@ -290,7 +327,9 @@ const Settings = () => {
                   </Button>
                 </div>
               </div>
-
+              <p className="text-sm text-red-900">
+                These are not yet implemented!
+              </p>
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Compact mode</Label>
@@ -299,6 +338,7 @@ const Settings = () => {
                   </p>
                 </div>
                 <Switch
+                  disabled="true"
                   checked={compactMode}
                   onCheckedChange={() =>
                     hanldeToggleSetting(
@@ -317,6 +357,7 @@ const Settings = () => {
                   </p>
                 </div>
                 <Switch
+                  disabled="true"
                   checked={showBalanceInHeader}
                   onCheckedChange={() =>
                     hanldeToggleSetting(
@@ -335,6 +376,7 @@ const Settings = () => {
                   </p>
                 </div>
                 <Switch
+                  disabled="true"
                   checked={soundNotifications}
                   onCheckedChange={() =>
                     hanldeToggleSetting(

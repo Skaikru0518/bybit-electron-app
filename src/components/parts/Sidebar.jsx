@@ -27,8 +27,8 @@ const Sidebar = ({ open, onToggle }) => {
   const { walletBalance, isLoading, isConnected } = useTradingData();
   const fetchInfo = async () => {
     try {
-      const response = await window.api.getAllPositions('linear', 'USDT');
-      console.log(walletBalance);
+      const response = await window.api.getClosedPnl('linear');
+      console.log(response.list);
     } catch (error) {
       throw new Error(error);
     }

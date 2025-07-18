@@ -12,6 +12,8 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.invoke('getAllOrders', category, settleCoin),
   getAllPositions: (category, settleCoin) =>
     ipcRenderer.invoke('getAllPositions', category, settleCoin),
+  getClosedPnl: (category) => ipcRenderer.invoke('getClosedPnl', category),
+
   //store
   setStore: (key, value) => ipcRenderer.invoke('setStore', key, value),
   getStore: (key) => ipcRenderer.invoke('getStore', key),

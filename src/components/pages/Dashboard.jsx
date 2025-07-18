@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import {
@@ -17,6 +17,7 @@ import { Activity, DollarSign, TrendingDown, TrendingUp } from 'lucide-react';
 
 const Dashboard = () => {
   const { walletBalance, tradesData, yesterdaysEquity } = useTradingData();
+  const [closedPnl, setClosedPnl] = useState([]);
   const stats = [
     {
       title: 'Total Balance',
@@ -48,13 +49,20 @@ const Dashboard = () => {
     },
   ];
 
-  const yes = () => {
-    //const response = await window.api.getStore('yesterdayEquity');
-    console.log(yesterdaysEquity);
-  };
+  useEffect(() => {
+    const getClosedPnl = async () => {
+      try {
+        const response = await window.api.getClosedPnl('linear');
+        setClosedPnl(response.list);
+      } catch (error) {
+        console.error('Failed to fetch closed pnl data', error);
+      }
+    };
+    getClosedPnl();
+  }, []);
+
   return (
     <div className="flex-1 space-y-6 p-6 w-full">
-      <button onClick={() => yes()}>asdasd</button>
       <div className="flex items-center justify-between w-full">
         <h2 className="text-3xl font-bold tracking-tight">Trading Dashboard</h2>
         <Badge className="gap-2" variant="outline">
@@ -89,21 +97,19 @@ const Dashboard = () => {
       <div className="flex flex-col w-full">
         <div className="flex w-full">
           <div className="w-full flex flex-col items-center justify-center">
-            <p>W/L Ratio</p>
-            <WinLossPieChart data={winLossData} />
+            <p>Last 7 days W/L Ratio</p>
+            <WinLossPieChart data={closedPnl} />
           </div>
-          <div className="w-full flex flex-col items-center justify-center">
+          {/* <div className="w-full flex flex-col items-center justify-center">
             <p>Asset distribution</p>
             <AssetDistribuitonChart data={assetsData} />
-          </div>
+          </div> */}
         </div>
 
-        <PnLChart data={cumulativeData} />
-        <PnLBarChart data={cumulativeData} />
-        <VolumeChart data={VolumeData} />
+        <PnLChart data={closedPnl} />
+        {/* <PnLBarChart data={cumulativeData} />
+        <VolumeChart data={VolumeData} /> */}
       </div>
-
-      {/* Tradingview Chart */}
     </div>
   );
 };

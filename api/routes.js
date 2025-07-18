@@ -2,6 +2,7 @@ import {
   getAccountInfo,
   getAllOrders,
   getAllPositions,
+  getClosedPnL,
   getPrice,
   getWalletBalance,
 } from './get/index.js';
@@ -16,6 +17,7 @@ const routes = [
   { channel: 'getAllOrders', handler: getAllOrders },
   { channel: 'getAllPositions', handler: getAllPositions },
   { channel: 'getWalletBalance', handler: getWalletBalance },
+  { channel: 'getClosedPnl', handler: getClosedPnL },
 ];
 
 export default routes;

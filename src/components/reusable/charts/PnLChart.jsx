@@ -1,24 +1,57 @@
+import { useMemo } from 'react';
 import {
+  ResponsiveContainer,
   AreaChart,
-  Area,
+  CartesianGrid,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
+  Area,
 } from 'recharts';
 
 const PnLChart = ({ data }) => {
+  const chartData = useMemo(() => {
+    // Csoportosítás napok szerint
+    const dailyPnL = {};
+
+    data.forEach((trade) => {
+      const date = new Date(parseInt(trade.updatedTime))
+        .toISOString()
+        .split('T')[0]; // YYYY-MM-DD
+      const pnl = parseFloat(trade.closedPnl);
+
+      if (!dailyPnL[date]) {
+        dailyPnL[date] = 0;
+      }
+      dailyPnL[date] += pnl;
+    });
+
+    // Rendezés dátum szerint és cumulative számítás
+    const sortedDates = Object.keys(dailyPnL).sort();
+    let cumulativePnL = 0;
+
+    return sortedDates.map((date) => {
+      cumulativePnL += dailyPnL[date];
+      return {
+        date: date,
+        daily: dailyPnL[date],
+        cumulative: cumulativePnL,
+      };
+    });
+  }, [data]);
+
   return (
     <ResponsiveContainer width={'100%'} height={300}>
-      <AreaChart data={data}>
+      <AreaChart data={chartData}>
         <CartesianGrid strokeDasharray={'0, 0'} />
         <XAxis
           dataKey={'date'}
           tickFormatter={(value) => new Date(value).toLocaleDateString()}
         />
         <YAxis />
-        <Tooltip formatter={(value) => [`$${value}`, 'Cumulative P&L']} />
+        <Tooltip
+          formatter={(value) => [`$${value.toFixed(2)}`, 'Cumulative P&L']}
+        />
         <Area
           type={'monotone'}
           dataKey={'cumulative'}
@@ -30,4 +63,5 @@ const PnLChart = ({ data }) => {
     </ResponsiveContainer>
   );
 };
+
 export default PnLChart;

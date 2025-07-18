@@ -4,3 +4,4 @@ export { default as getAllOrders } from './getAllOrders.js';
 export { default as getAllPositions } from './getAllPositions.js';
 export { default as getWalletBalance } from './getWalletBalance.js';
 export { default as getClosedPnL } from './getClosedPnl.js';
+export { default as getInstrumentInfo } from './getInstrumentInfo.js';

@@ -4,15 +4,33 @@ contextBridge.exposeInMainWorld('api', {
   //get
   getAccountInfo: (accountType) =>
     ipcRenderer.invoke('getAccountInfo', accountType),
+
   getWalletBalance: (accountType) =>
     ipcRenderer.invoke('getWalletBalance', accountType),
+
   getPrice: (category, symbol) =>
     ipcRenderer.invoke('getPrice', category, symbol),
+
   getAllOrders: (category, settleCoin) =>
     ipcRenderer.invoke('getAllOrders', category, settleCoin),
+
   getAllPositions: (category, settleCoin) =>
     ipcRenderer.invoke('getAllPositions', category, settleCoin),
+
   getClosedPnl: (category) => ipcRenderer.invoke('getClosedPnl', category),
+
+  getInstrumentInfo: (category, symbol) =>
+    ipcRenderer.invoke('getInstrumentInfo', category, symbol),
+
+  //post
+  postSetLeverage: (category, symbol, buyLeverage, sellLeverage) =>
+    ipcRenderer.invoke(
+      'postSetLeverage',
+      category,
+      symbol,
+      buyLeverage,
+      sellLeverage,
+    ),
 
   //store
   setStore: (key, value) => ipcRenderer.invoke('setStore', key, value),

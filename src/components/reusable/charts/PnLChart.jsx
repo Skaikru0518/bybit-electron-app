@@ -51,6 +51,11 @@ const PnLChart = ({ data }) => {
         <YAxis />
         <Tooltip
           formatter={(value) => [`$${value.toFixed(2)}`, 'Cumulative P&L']}
+          contentStyle={{
+            color: '#1e293b',
+            background: '#fff',
+            border: '1px solid #e5e7eb',
+          }}
         />
         <Area
           type={'monotone'}

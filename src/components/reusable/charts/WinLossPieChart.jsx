@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 
-const COLORS = ['#10b981', '#ef4444'];
+const COLORS = ['#047857', '#b91c1c'];
 
 const WinLossPieChart = ({ data }) => {
   const pieData = useMemo(() => {

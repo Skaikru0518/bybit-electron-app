@@ -67,17 +67,17 @@ const Sidebar = ({ open, onToggle }) => {
         <div className="space-y-2">
           <div className="flex-1 flex flex-col items-center">
             <Badge
-              className={'gap-1 text-xs'}
+              className={'gap-1 text-xs p-2'}
               variant={isConnected ? 'default' : 'destructive'}
             >
               {isConnected ? (
                 <>
-                  <Wifi className="w-2 h-2 animate-pulse text-green-300" />
+                  <Wifi className="w-4 h-4 animate-pulse text-green-700" />
                   {open ? 'Connected' : ''}
                 </>
               ) : (
                 <>
-                  <WifiOff className="w-2 h-2" />
+                  <WifiOff className="w-4 h-4" />
                   {open ? 'Disconnected' : ''}
                 </>
               )}

@@ -22,7 +22,18 @@ const placeOrder = async (
       takeProfit: takeProfit,
       stopLoss: stopLoss,
     });
-    return { message: 'Order placed!' };
+    console.log(
+      'Order placed with details:',
+      category,
+      symbol,
+      side,
+      orderType,
+      qty,
+      price,
+      takeProfit,
+      stopLoss,
+    );
+    return response;
   } catch (err) {
     throw new Error(err);
   }

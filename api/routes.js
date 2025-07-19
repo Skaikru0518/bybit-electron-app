@@ -7,9 +7,11 @@ import {
   getPrice,
   getWalletBalance,
 } from './get/index.js';
-import cancelOrder from './post/postCancelOrder.js';
-import placeOrder from './post/postPlaceOrder.js';
-import setLeverage from './post/postSetLeverage.js';
+import {
+  postCancelOrder,
+  postPlaceOrder,
+  postSetLeverage,
+} from './post/index.js';
 import { getStore, setStore } from './store/index.js';
 
 const routes = [
@@ -25,9 +27,9 @@ const routes = [
   { channel: 'getInstrumentInfo', handler: getInstrumentInfo },
 
   // post
-  { channel: 'setLeverage', handler: setLeverage },
-  { channel: 'placeOrder', handler: placeOrder },
-  { channel: 'cancelOrder', handler: cancelOrder },
+  { channel: 'postSetLeverage', handler: postSetLeverage },
+  { channel: 'postPlaceOrder', handler: postPlaceOrder },
+  { channel: 'postCancelOrder', handler: postCancelOrder },
 ];
 
 export default routes;

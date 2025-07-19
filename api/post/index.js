@@ -1,3 +1,3 @@
-export { default as setLeverage } from './postSetLeverage.js';
-export { default as placeOrder } from './postPlaceOrder.js';
-export { default as cancelOrder } from './postCancelOrder.js';
+export { default as postSetLeverage } from './postSetLeverage.js';
+export { default as postPlaceOrder } from './postPlaceOrder.js';
+export { default as postCancelOrder } from './postCancelOrder.js';

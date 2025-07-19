@@ -27,7 +27,7 @@ const Sidebar = ({ open, onToggle }) => {
   const { walletBalance, isLoading, isConnected } = useTradingData();
   const fetchInfo = async () => {
     try {
-      const response = await window.api.getPrice('linear', 'BTCUSDT');
+      const response = await window.api.getInstrumentInfo('linear', 'XRPUSDT');
       console.log(response);
     } catch (error) {
       throw new Error(error);

@@ -27,7 +27,6 @@ import {
   Plus,
   Loader,
   TrendingUp,
-  TrendingDown,
 } from 'lucide-react';
 import { useTradingData } from '../providers/TradingDataProvider';
 import { toast } from 'sonner';
@@ -39,7 +38,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
-
 const Trades = () => {
   const { tradesData, refreshInterval } = useTradingData();
   const [editingTrade, setEditingTrade] = useState(null);
@@ -48,26 +46,25 @@ const Trades = () => {
   const [newOrder, setNewOrder] = useState({
     symbol: '',
     side: '',
-    orderType: 'Market',
+    orderType: 'market',
     qty: '',
     takeProfit: '',
     stopLoss: '',
-    leverage: 10,
+    leverage: '',
   });
   const [currentPrice, setCurrentPrice] = useState(0);
   const [instrumentInfo, setInstrumentInfo] = useState(null);
   const [isLoadingPrice, setIsLoadingPrice] = useState(false);
   const [showNewOrderDialog, setShowNewOrderDialog] = useState(false);
-  const [symbolInput, setSymbolInput] = useState('');
-  const [lastLeverageResetSymbol, setLastLeverageResetSymbol] = useState('');
+  const [symbolInput, setSymbolInput] = useState();
 
   const fetchInstumentData = async (symbol) => {
     try {
       setIsLoadingPrice(true);
-      const info = await window.api.getInstrumentInfo('linear', symbol);
-      const instrumentPrice = await window.api.getPrice('linear', symbol);
+      const info = await window.api?.getInstrumentInfo('linear', symbol);
+      const instrumentPrice = await window.api?.getPrice('linear', symbol);
       if (info) {
-        setCurrentPrice(parseFloat(instrumentPrice[0].markPrice));
+        setCurrentPrice(instrumentPrice[0].markPrice);
         setInstrumentInfo(info.list[0]);
       }
     } catch (error) {
@@ -97,71 +94,39 @@ const Trades = () => {
     }
   }, [showNewOrderDialog, newOrder.symbol, refreshInterval]);
 
-  useEffect(() => {
-    if (
-      instrumentInfo?.leverageFilter &&
-      symbolInput &&
-      instrumentInfo.symbol === symbolInput &&
-      lastLeverageResetSymbol !== symbolInput
-    ) {
-      setNewOrder((prev) => ({
-        ...prev,
-        leverage: Number(instrumentInfo.leverageFilter.minLeverage),
-      }));
-      setLastLeverageResetSymbol(symbolInput);
-    }
-  }, [instrumentInfo, symbolInput, lastLeverageResetSymbol]);
-
   const handleEditTrade = (trade) => {
     setEditingTrade(trade);
     setTakeProfit(trade.takeProfit?.toString() || '');
     setStopLoss(trade.stopLoss?.toString() || '');
   };
 
-  const handleLeverageChange = (value) => {
-    setNewOrder((prev) => ({ ...prev, leverage: Number(value[0]) }));
-  };
-
   const handleNewOrderSubmit = async () => {
     try {
-      // Mindkét oldalra ugyanazt a leverage-et küldjük
-      await window.api.postSetLeverage(
-        'linear',
-        newOrder.symbol,
-        String(newOrder.leverage),
-        String(newOrder.leverage),
-      );
-
-      console.log(newOrder);
-      // Order
-      const price = newOrder.orderType === 'Market' ? currentPrice : 'null';
-      const order = await window.api.postPlaceOrder(
+      const price = newOrder.orderType === 'market' ? 'null' : currentPrice;
+      await window.api?.placeOrder?.(
         'linear',
         newOrder.symbol,
         newOrder.side,
         newOrder.orderType,
         parseFloat(newOrder.qty),
         price,
-        newOrder.takeProfit ? parseFloat(newOrder.takeProfit) : '',
-        newOrder.stopLoss ? parseFloat(newOrder.stopLoss) : '',
+        newOrder.takeProfit ? parseFloat(newOrder.takeProfit) : null,
+        newOrder.stopLoss ? parseFloat(newOrder.stopLoss) : null,
       );
-
-      console.log('Order response', order);
 
       toast.success('Order placed');
       setShowNewOrderDialog(false);
 
-      // reset newOrder state
+      //reset newOrder state
       setNewOrder({
         symbol: '',
         side: '',
-        orderType: 'Market',
+        orderType: '',
         qty: '',
         takeProfit: '',
         stopLoss: '',
-        leverage: 1,
+        leverage: '',
       });
-      setSymbolInput('');
     } catch (error) {
       console.error('Failed to place order', error);
       toast.error('Failed to place order');
@@ -186,15 +151,6 @@ const Trades = () => {
 
   const handleSymbolChange = (symbol) => {
     setSymbolInput(symbol.toUpperCase());
-  };
-
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(price);
   };
 
   return (
@@ -334,7 +290,7 @@ const Trades = () => {
                             Edit TP/SL
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => handleClosePosition(trade)}
+                            onClick={() => handleClosePosition(trade.id)}
                           >
                             <X className="mr-2 h-4 w-4" />
                             Close Position
@@ -372,7 +328,9 @@ const Trades = () => {
               <Label>Current price</Label>
               <div className="flex flex-row items-center gap-2 text-sm">
                 <span>
-                  {isLoadingPrice ? 'Loading...' : formatPrice(currentPrice)}
+                  {isLoadingPrice
+                    ? 'Loading...'
+                    : `$${currentPrice.toLocaleString()}`}
                 </span>
                 {isLoadingPrice && (
                   <Loader className="text-green-500 h-4 w-4 animate-spin" />
@@ -381,19 +339,21 @@ const Trades = () => {
             </div>
 
             <div className="space-y-2">
-              <Label>Leverage: {newOrder.leverage}x</Label>
-              <Slider
-                value={[Number(newOrder.leverage)]}
-                onValueChange={handleLeverageChange}
-                min={Number(instrumentInfo?.leverageFilter?.minLeverage) || 1}
-                max={Number(instrumentInfo?.leverageFilter?.maxLeverage) || 100}
+              <Label>Leverage: {newOrder.leverage[0]}x</Label>
+              {/* <Slider
+                value={newOrder.leverage}
+                onValueChange={(value) =>
+                  setNewOrder((prev) => ({ ...prev, leverage: value }))
+                }
+                max={instrumentInfo?.leverageFilter?.maxLeverage || 100}
+                min={instrumentInfo?.leverageFilter?.minLeverage || 1}
                 step={1}
                 className="mt-2"
-              />
+              /> */}
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>1x</span>
                 <span>
-                  {instrumentInfo?.leverageFilter?.maxLeverage || 100}x
+                  {instrumentInfo?.leverageFilter?.maxLeverage || 100} x
                 </span>
               </div>
             </div>
@@ -402,7 +362,6 @@ const Trades = () => {
               <Label>Side</Label>
               <div className="flex gap-2 mt-1">
                 <Button
-                  variant={newOrder.side === 'Buy' ? 'default' : 'outline'}
                   onClick={() =>
                     setNewOrder((prev) => ({ ...prev, side: 'Buy' }))
                   }
@@ -412,13 +371,11 @@ const Trades = () => {
                   Buy
                 </Button>
                 <Button
-                  variant={newOrder.side === 'Sell' ? 'default' : 'outline'}
                   onClick={() =>
                     setNewOrder((prev) => ({ ...prev, side: 'Sell' }))
                   }
                   className={'flex-1 bg-red-700'}
                 >
-                  <TrendingDown className="mr-2 h-4 w-4" />
                   Sell
                 </Button>
               </div>
@@ -431,13 +388,14 @@ const Trades = () => {
                 onValueChange={(value) =>
                   setNewOrder((prev) => ({ ...prev, orderType: value }))
                 }
+                default="market"
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Market">Market</SelectItem>
-                  <SelectItem value="Limit">Limit</SelectItem>
+                  <SelectItem value="market">Market</SelectItem>
+                  <SelectItem value="limit">Limit</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -476,7 +434,7 @@ const Trades = () => {
               <Input
                 id="newStopLoss"
                 type={'number'}
-                placeholder="Enter stop loss price"
+                placeOrder="Enter stop loss price"
                 value={newOrder.stopLoss}
                 onChange={(e) =>
                   setNewOrder((prev) => ({ ...prev, stopLoss: e.target.value }))
@@ -515,35 +473,36 @@ const Trades = () => {
             <DialogTitle>Edit Position - {editingTrade?.symbol}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="takeProfit">Take Profit</Label>
-              <Input
-                id="takeProfit"
-                type={'number'}
-                placeholder="Enter take profit price"
-                value={takeProfit}
-                onChange={(e) => setTakeProfit(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="stopLoss">Stop Loss</Label>
-              <Input
-                id="stopLoss"
-                type={'number'}
-                placeholder="Enter stop loss price"
-                value={stopLoss}
-                onChange={(e) => setStopLoss(e.target.value)}
-              />
-            </div>
-            <div className="flex justify-end space-x-2">
-              <Button variant={'outline'} onClick={() => setEditingTrade(null)}>
-                Cancel
-              </Button>
-              <Button onClick={handleUpdateTrade}>
-                <Target className="mr-2 h-4 w-4" />
-                Update position
-              </Button>
-            </div>
+            <Label htmlFor="takeProfit">Take Profit</Label>
+            <Input
+              id="takeProfit"
+              type={'number'}
+              placeholder="Enter take profit price"
+              value={takeProfit}
+              onChange={(e) => setTakeProfit(e.target.value)}
+            />
+          </div>
+          <div className="space-y-4">
+            <Label htmlFor="stopLoss">Stop Loss</Label>
+            <Input
+              id="stopLoss"
+              type={'number'}
+              placeholder="Enter stop loss price"
+              value={stopLoss}
+              onChange={(e) => setStopLoss(e.target.value)}
+            />
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button
+              variant={'outline'}
+              onClick={() => handleClosePosition(null)}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleUpdateTrade}>
+              <Target className="mr-2 h-4 w-4" />
+              Update position
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

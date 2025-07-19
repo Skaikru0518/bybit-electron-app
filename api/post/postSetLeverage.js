@@ -8,13 +8,20 @@ const setLeverage = async (
   sellLeverage,
 ) => {
   try {
-    const currPrice = await client.setLeverage({
+    const response = await client.setLeverage({
       category: category, // inverse
       symbol: symbol, // USDT
       buyLeverage: buyLeverage,
       sellLeverage: sellLeverage,
     });
-    return currPrice.result;
+    console.log(
+      'Leverage adjusted: ',
+      category,
+      symbol,
+      buyLeverage,
+      sellLeverage,
+    );
+    return response;
   } catch (err) {
     throw new Error(err);
   }

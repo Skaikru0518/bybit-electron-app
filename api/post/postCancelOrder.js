@@ -7,7 +7,8 @@ const cancelOrder = async (event, category, symbol, orderId) => {
       symbol: symbol, // USDT
       orderId: orderId,
     });
-    return { message: 'Order closed!' };
+    console.log('Order cancel success with id/symbol', orderId, symbol);
+    return response;
   } catch (err) {
     throw new Error(err);
   }

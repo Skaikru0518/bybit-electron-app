@@ -31,6 +31,28 @@ contextBridge.exposeInMainWorld('api', {
       buyLeverage,
       sellLeverage,
     ),
+  postPlaceOrder: (
+    category,
+    symbol,
+    side,
+    orderType,
+    qty,
+    price,
+    takeProfit,
+    stopLoss,
+  ) =>
+    ipcRenderer.invoke(
+      'postPlaceOrder',
+      category,
+      symbol,
+      side,
+      orderType,
+      qty,
+      price,
+      takeProfit,
+      stopLoss,
+    ),
+  postCancelOrder: () => ipcRenderer.invoke('postCancelOrder'),
 
   //store
   setStore: (key, value) => ipcRenderer.invoke('setStore', key, value),

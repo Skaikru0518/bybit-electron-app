@@ -50,6 +50,7 @@ const Trades = () => {
     side: '',
     orderType: 'Market',
     qty: '',
+    price: '', // Új mező limit orderhez
     takeProfit: '',
     stopLoss: '',
     leverage: 10,
@@ -124,7 +125,6 @@ const Trades = () => {
 
   const handleNewOrderSubmit = async () => {
     try {
-      // Mindkét oldalra ugyanazt a leverage-et küldjük
       await window.api.postSetLeverage(
         'linear',
         newOrder.symbol,
@@ -132,36 +132,52 @@ const Trades = () => {
         String(newOrder.leverage),
       );
 
-      console.log(newOrder);
-      // Order
-      const price = newOrder.orderType === 'Market' ? currentPrice : 'null';
+      const orderPrice =
+        newOrder.orderType === 'Limit'
+          ? newOrder.price && newOrder.price !== ''
+            ? String(newOrder.price)
+            : ''
+          : '';
+
+      const takeProfit =
+        newOrder.takeProfit && newOrder.takeProfit !== ''
+          ? String(newOrder.takeProfit)
+          : '';
+
+      const stopLoss =
+        newOrder.stopLoss && newOrder.stopLoss !== ''
+          ? String(newOrder.stopLoss)
+          : '';
+
       const order = await window.api.postPlaceOrder(
         'linear',
         newOrder.symbol,
         newOrder.side,
         newOrder.orderType,
-        parseFloat(newOrder.qty),
-        price,
-        newOrder.takeProfit ? parseFloat(newOrder.takeProfit) : '',
-        newOrder.stopLoss ? parseFloat(newOrder.stopLoss) : '',
+        String(newOrder.qty),
+        orderPrice,
+        takeProfit,
+        stopLoss,
       );
 
+      console.log('Order details', newOrder);
       console.log('Order response', order);
-
       toast.success('Order placed');
       setShowNewOrderDialog(false);
 
-      // reset newOrder state
+      // Reset newOrder state
       setNewOrder({
         symbol: '',
         side: '',
         orderType: 'Market',
         qty: '',
+        price: '',
         takeProfit: '',
         stopLoss: '',
         leverage: 1,
       });
       setSymbolInput('');
+      setLastLeverageResetSymbol('');
     } catch (error) {
       console.error('Failed to place order', error);
       toast.error('Failed to place order');
@@ -170,7 +186,11 @@ const Trades = () => {
 
   const handleClosePosition = async (trade) => {
     try {
-      await window.api?.cancelOrder?.('linear', trade.symbol, trade.orderId);
+      await window.api?.postCancelOrder?.(
+        'linear',
+        trade.symbol,
+        trade.orderId,
+      );
       toast.success(`Position ${trade.symbol} closed succesfully`);
     } catch (error) {
       console.error('Failed to close position', error);
@@ -402,21 +422,31 @@ const Trades = () => {
               <Label>Side</Label>
               <div className="flex gap-2 mt-1">
                 <Button
-                  variant={newOrder.side === 'Buy' ? 'default' : 'outline'}
+                  variant="outline"
                   onClick={() =>
                     setNewOrder((prev) => ({ ...prev, side: 'Buy' }))
                   }
-                  className={'flex-1 bg-emerald-600'}
+                  className={`flex-1 transition-all duration-200
+        ${
+          newOrder.side === 'Buy'
+            ? 'bg-emerald-500 text-black font-bold border-2 border-emerald-700 shadow-lg scale-105'
+            : 'bg-white text-emerald-700 border border-emerald-200 opacity-70'
+        }`}
                 >
                   <TrendingUp className="mr-2 h-4 w-4" />
                   Buy
                 </Button>
                 <Button
-                  variant={newOrder.side === 'Sell' ? 'default' : 'outline'}
+                  variant="outline"
                   onClick={() =>
                     setNewOrder((prev) => ({ ...prev, side: 'Sell' }))
                   }
-                  className={'flex-1 bg-red-700'}
+                  className={`flex-1 transition-all duration-200
+        ${
+          newOrder.side === 'Sell'
+            ? 'bg-red-500 text-white font-bold border-2 border-red-700 shadow-lg scale-105'
+            : 'bg-white text-red-700 border border-red-200 opacity-70'
+        }`}
                 >
                   <TrendingDown className="mr-2 h-4 w-4" />
                   Sell
@@ -441,6 +471,22 @@ const Trades = () => {
                 </SelectContent>
               </Select>
             </div>
+
+            {/* ÚJ: Limit Price Input - csak Limit ordernél jelenik meg */}
+            {newOrder.orderType === 'Limit' && (
+              <div className="space-y-2">
+                <Label htmlFor="limitPrice">Limit Price</Label>
+                <Input
+                  id="limitPrice"
+                  type={'number'}
+                  placeholder="Enter limit price"
+                  value={newOrder.price}
+                  onChange={(e) =>
+                    setNewOrder((prev) => ({ ...prev, price: e.target.value }))
+                  }
+                />
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="qty">Quantity</Label>
@@ -498,7 +544,12 @@ const Trades = () => {
                   'bg-emerald-700 hover:bg-emerald-500 hover:cursor-pointer hover:transition-colors duration-300'
                 }
                 onClick={handleNewOrderSubmit}
-                disabled={!newOrder.qty}
+                disabled={
+                  !newOrder.qty ||
+                  !newOrder.side ||
+                  (newOrder.orderType === 'Limit' && !newOrder.price) ||
+                  !newOrder.symbol
+                }
               >
                 Place order
               </Button>
@@ -508,7 +559,6 @@ const Trades = () => {
       </Dialog>
 
       {/* EDIT DIALOG  */}
-
       <Dialog open={!!editingTrade} onOpenChange={() => setEditingTrade(null)}>
         <DialogContent>
           <DialogHeader>
@@ -536,7 +586,10 @@ const Trades = () => {
               />
             </div>
             <div className="flex justify-end space-x-2">
-              <Button variant={'outline'} onClick={() => setEditingTrade(null)}>
+              <Button
+                variant={'outline'}
+                onClick={() => setEditingTrade(trade)}
+              >
                 Cancel
               </Button>
               <Button onClick={handleUpdateTrade}>

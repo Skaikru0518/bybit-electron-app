@@ -17,6 +17,12 @@ contextBridge.exposeInMainWorld('api', {
   getAllPositions: (category, settleCoin) =>
     ipcRenderer.invoke('getAllPositions', category, settleCoin),
 
+  getOnePosition: (category, symbol) =>
+    ipcRenderer.invoke('getOnePosition', category, symbol),
+
+  getActiveOrders: (category, symbol) =>
+    ipcRenderer.invoke('getActiveOrders', category, symbol),
+
   getClosedPnl: (category) => ipcRenderer.invoke('getClosedPnl', category),
 
   getInstrumentInfo: (category, symbol) =>

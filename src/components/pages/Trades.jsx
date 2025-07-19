@@ -184,14 +184,57 @@ const Trades = () => {
     }
   };
 
+  // const handleClosePosition = async (trade) => {
+  //   try {
+  //     const activeOrders = await window.api.getActiveOrders(
+  //       'linear',
+  //       trade.symbol,
+  //     );
+
+  //     console.log(activeOrders);
+  //     const orderId = activeOrders.nextPageCursor.split('%')[0];
+
+  //     const response = await window.api.postCancelOrder(
+  //       'linear',
+  //       trade.symbol,
+  //       orderId,
+  //     );
+  //     console.log(response);
+  //     toast.success(`Stop order for ${trade.symbol} canceled successfully`);
+  //   } catch (error) {
+  //     console.error('Failed to close position', error);
+  //     toast.error('Failed to close position');
+  //   }
+  // };
+
   const handleClosePosition = async (trade) => {
     try {
-      await window.api?.postCancelOrder?.(
+      const activeOrders = await window.api.getActiveOrders(
         'linear',
         trade.symbol,
-        trade.orderId,
       );
-      toast.success(`Position ${trade.symbol} closed succesfully`);
+      if (activeOrders.nextPageCursor) {
+        const orderId = decodeURIComponent(activeOrders.nextPageCursor).split(
+          ':',
+        )[0];
+        await window.api.postCancelOrder('linear', trade.symbol, orderId);
+        toast.success(`Stop order for ${trade.symbol} canceled successfully`);
+      }
+
+      const closeSide = trade.side === 'Buy' ? 'Sell' : 'Buy';
+
+      await window.api.postPlaceOrder(
+        'linear',
+        trade.symbol,
+        closeSide,
+        'Market',
+        trade.size,
+        '', // price
+        '', // takeProfit n
+        '', // stopLoss
+      );
+
+      toast.success(`Position ${trade.symbol} closed successfully`);
     } catch (error) {
       console.error('Failed to close position', error);
       toast.error('Failed to close position');
@@ -586,10 +629,7 @@ const Trades = () => {
               />
             </div>
             <div className="flex justify-end space-x-2">
-              <Button
-                variant={'outline'}
-                onClick={() => setEditingTrade(trade)}
-              >
+              <Button variant={'outline'} onClick={() => setEditingTrade(null)}>
                 Cancel
               </Button>
               <Button onClick={handleUpdateTrade}>

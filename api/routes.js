@@ -1,9 +1,11 @@
 import {
   getAccountInfo,
+  getActiveOrders,
   getAllOrders,
   getAllPositions,
   getClosedPnL,
   getInstrumentInfo,
+  getOnePosition,
   getPrice,
   getWalletBalance,
 } from './get/index.js';
@@ -22,9 +24,11 @@ const routes = [
   { channel: 'getPrice', handler: getPrice },
   { channel: 'getAllOrders', handler: getAllOrders },
   { channel: 'getAllPositions', handler: getAllPositions },
+  { channel: 'getOnePosition', handler: getOnePosition },
   { channel: 'getWalletBalance', handler: getWalletBalance },
   { channel: 'getClosedPnl', handler: getClosedPnL },
   { channel: 'getInstrumentInfo', handler: getInstrumentInfo },
+  { channel: 'getActiveOrders', handler: getActiveOrders },
 
   // post
   { channel: 'postSetLeverage', handler: postSetLeverage },

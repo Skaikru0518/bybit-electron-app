@@ -29,7 +29,7 @@ The **Bybit Trader App** is a desktop application built with **Electron**, **Rea
 
 ## Prerequisites
 
-Before running the app, ensure you have the following installed:
+Before running the app, ensure you have the following installed (if you are a dev):
 
 - [Node.js](https://nodejs.org/) (v16 or higher)
 - [npm](https://www.npmjs.com/) (v8 or higher)
@@ -50,14 +50,6 @@ Before running the app, ensure you have the following installed:
    ```bash
    npm install
 
-   ```
-
-3. **Create ApiKeys.json inside src/Backend**:
-   ```json
-   {
-     "apiKey": "YOUR_API_KEY",
-     "apiSecret": "YOUR_API_SECRET"
-   }
    ```
 
 ## Running the app

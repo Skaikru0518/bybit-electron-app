@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Badge } from '../ui/badge';
 import { useTradingData } from '../providers/TradingDataProvider';
+import packageJson from '../../../package.json';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: TrendingUp },
@@ -122,14 +123,12 @@ const Sidebar = ({ open, onToggle }) => {
           </div>
         </div>
       </div>
-      <div>
-        <Button onClick={() => fetchInfo()}>fetch</Button>
-      </div>
+      <div></div>
 
       {/* navigation menu */}
 
-      <nav className="flex-1 p-2">
-        <ul className="space-y-2">
+      <nav className="flex-1p-2">
+        <ul className="space-y-2 flex flex-col">
           {navigation.map((item) => {
             const isActive = location.pathname === item.href;
             return (
@@ -152,6 +151,12 @@ const Sidebar = ({ open, onToggle }) => {
           })}
         </ul>
       </nav>
+      <div className="flex-col flex-1 items-start justify-end flex">
+        {/* <Button onClick={() => fetchInfo()}>Debug</Button> */}
+        <div className="text-xs text-muted-foreground p-1">
+          Build: {packageJson.version}
+        </div>
+      </div>
     </div>
   );
 };

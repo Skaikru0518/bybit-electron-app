@@ -1,7 +1,7 @@
 {
   "name": "zen-trader-app-2.0",
   "version": "2.0.0",
-  "description": "Lightweight trading app for bybit eu",
+  "description": "A powerful, lightweight and efficient trading application.",
   "license": "MIT",
   "author": "@skaikru",
   "type": "module",
@@ -20,6 +20,13 @@
     "appId": "com.zentrader.app",
     "productName": "ZenTrader 2.0",
     "artifactName": "${productName}-Setup-${version}.${ext}",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Skaikru0518",
+        "repo": "bybit-electron-app"
+      }
+    ],
     "directories": {
       "output": "release"
     },
@@ -28,7 +35,8 @@
       "index.js",
       "preload.js",
       "src/assets/*",
-      "api/**/*"
+      "api/**/*",
+      "public/*"
     ],
     "win": {
       "target": "nsis",
@@ -63,7 +71,9 @@
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
     "dotenv": "^17.0.1",
+    "electron-log": "^5.4.1",
     "electron-store": "^10.1.0",
+    "electron-updater": "^6.6.2",
     "lucide-react": "^0.525.0",
     "next-themes": "^0.4.6",
     "react": "^19.1.0",

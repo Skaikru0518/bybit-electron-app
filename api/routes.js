@@ -11,6 +11,7 @@ import {
 } from './get/index.js';
 import {
   postCancelOrder,
+  postModifyTpSl,
   postPlaceOrder,
   postSetLeverage,
 } from './post/index.js';
@@ -34,6 +35,7 @@ const routes = [
   { channel: 'postSetLeverage', handler: postSetLeverage },
   { channel: 'postPlaceOrder', handler: postPlaceOrder },
   { channel: 'postCancelOrder', handler: postCancelOrder },
+  { channel: 'postModifyTpSl', handler: postModifyTpSl },
 ];
 
 export default routes;

@@ -94,21 +94,32 @@ const Dashboard = () => {
           </Card>
         ))}
       </div>
+
       <div className="flex flex-col w-full">
         <div className="flex w-full">
           <div className="w-full flex flex-col items-center justify-center">
-            <p>Last 7 days W/L Ratio</p>
+            <p className="text-2xl font-semibold">Last 7 days W/L Ratio</p>
             <WinLossPieChart data={closedPnl} />
           </div>
-          {/* <div className="w-full flex flex-col items-center justify-center">
+          <div className="w-full flex flex-col items-center justify-center">
             <p>Asset distribution</p>
             <AssetDistribuitonChart data={assetsData} />
-          </div> */}
+          </div>
         </div>
-
-        <PnLChart data={closedPnl} />
-        {/* <PnLBarChart data={cumulativeData} />
-        <VolumeChart data={VolumeData} /> */}
+        <div className="w-full flex flex-col items-center justify-center space-y-5">
+          <h1 className="text-2xl font-semibold">Cumulative PnL</h1>
+          <PnLChart data={closedPnl} />
+        </div>
+        <div className="flex w-full">
+          <div className="w-1/2 flex flex-col items-center justify-center">
+            <p className="text-2xl font-semibold">PnL Barchart</p>
+            <PnLBarChart data={cumulativeData} />
+          </div>
+          <div className="w-1/2 flex flex-col items-center justify-center">
+            <p className="text-2xl font-semibold">Volume</p>
+            <VolumeChart data={VolumeData} />
+          </div>
+        </div>
       </div>
     </div>
   );

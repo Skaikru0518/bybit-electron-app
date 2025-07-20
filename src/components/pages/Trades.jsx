@@ -41,7 +41,7 @@ import {
 } from '../ui/select';
 
 const Trades = () => {
-  const { tradesData, refreshInterval } = useTradingData();
+  const { tradesData, refreshInterval, orderBookData } = useTradingData();
   const [editingTrade, setEditingTrade] = useState(null);
   const [takeProfit, setTakeProfit] = useState('');
   const [stopLoss, setStopLoss] = useState('');
@@ -184,29 +184,6 @@ const Trades = () => {
     }
   };
 
-  // const handleClosePosition = async (trade) => {
-  //   try {
-  //     const activeOrders = await window.api.getActiveOrders(
-  //       'linear',
-  //       trade.symbol,
-  //     );
-
-  //     console.log(activeOrders);
-  //     const orderId = activeOrders.nextPageCursor.split('%')[0];
-
-  //     const response = await window.api.postCancelOrder(
-  //       'linear',
-  //       trade.symbol,
-  //       orderId,
-  //     );
-  //     console.log(response);
-  //     toast.success(`Stop order for ${trade.symbol} canceled successfully`);
-  //   } catch (error) {
-  //     console.error('Failed to close position', error);
-  //     toast.error('Failed to close position');
-  //   }
-  // };
-
   const handleClosePosition = async (trade) => {
     try {
       const activeOrders = await window.api.getActiveOrders(
@@ -241,10 +218,28 @@ const Trades = () => {
     }
   };
 
-  const handleUpdateTrade = () => {
-    console.log('Updating trade', editingTrade?.id, { takeProfit, stopLoss });
-    //implement logic
-    setEditingTrade(null);
+  const handleUpdateTrade = async () => {
+    // console.log(editingTrade);
+    // console.log('Updating trade', editingTrade?.symbol, {
+    //   takeProfit,
+    //   stopLoss,
+    // });
+
+    try {
+      await window.api.postModifyTpSl(
+        'linear',
+        editingTrade.symbol,
+        takeProfit,
+        stopLoss,
+      );
+      //console.log(response);
+      toast.success('Trade modified!');
+    } catch (error) {
+      console.error('Failed to modify trade', error);
+      toast.error('Failed to modify trade.');
+    } finally {
+      setEditingTrade(null);
+    }
   };
 
   const handleSymbolChange = (symbol) => {
@@ -408,6 +403,73 @@ const Trades = () => {
                   </TableRow>
                 ))}
               </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ORDERBOOK */}
+      <Card className={'w-full'}>
+        <CardHeader>Open orders</CardHeader>
+        <CardContent>
+          <div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Symbol</TableHead>
+                  <TableHead>Side</TableHead>
+                  <TableHead>Qty</TableHead>
+                  <TableHead>Order type</TableHead>
+                  <TableHead>Trigger Price</TableHead>
+                  <TableHead>Stop Order Type</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              {orderBookData.length > 0 ? (
+                <TableBody>
+                  {orderBookData.map((trade) => (
+                    <TableRow key={trade.orderId}>
+                      <TableCell>{trade.symbol}</TableCell>
+                      <TableCell>
+                        <Badge
+                          className={
+                            trade.side === 'Buy'
+                              ? 'bg-green-500 text-blac'
+                              : 'bg-red-500 text-white'
+                          }
+                        >
+                          {trade.side.toUpperCase()}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{trade.qty}</TableCell>
+                      <TableCell>{trade.orderType}</TableCell>
+                      <TableCell>
+                        $ {Number(trade.triggerPrice).toLocaleString()}
+                      </TableCell>
+                      <TableCell>{trade.stopOrderType}</TableCell>
+                      <TableCell>
+                        <Button
+                          size={'sm'}
+                          className={
+                            'hover:bg-red-400 hover:transition-colors hover:cursor-pointer duration-300'
+                          }
+                          onClick={() => handleClosePosition(trade)}
+                        >
+                          Close
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              ) : (
+                <TableBody>
+                  <TableRow>
+                    <TableCell colSpan={7}>
+                      No orders found in orderbook
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              )}
             </Table>
           </div>
         </CardContent>

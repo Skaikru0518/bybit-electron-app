@@ -10,7 +10,7 @@ import {
 
 const VolumeChart = ({ data }) => {
   return (
-    <ResponsiveContainer width={'100%'} height={400}>
+    <ResponsiveContainer width={'100%'} height={300}>
       <BarChart data={data}>
         <CartesianGrid strokeDasharray={'0 0'} />
         <XAxis
@@ -21,6 +21,11 @@ const VolumeChart = ({ data }) => {
         <Tooltip
           formatter={(value) => [`$${value}`, 'Volume']}
           labelFormatter={(value) => new Date(value).toLocaleDateString()}
+          contentStyle={{
+            color: '#1e293b',
+            background: '#fff',
+            border: '1px solid #e5e7eb',
+          }}
         />
         <Bar
           dataKey={'volume'}

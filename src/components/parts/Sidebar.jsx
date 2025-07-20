@@ -25,9 +25,10 @@ const navigation = [
 const Sidebar = ({ open, onToggle }) => {
   const location = useLocation();
   const { walletBalance, isLoading, isConnected } = useTradingData();
+
   const fetchInfo = async () => {
     try {
-      const response = await window.api.getInstrumentInfo('linear', 'XRPUSDT');
+      const response = await window.api.getAllOrders('linear', 'USDT');
       console.log(response);
     } catch (error) {
       throw new Error(error);
@@ -68,11 +69,11 @@ const Sidebar = ({ open, onToggle }) => {
           <div className="flex-1 flex flex-col items-center">
             <Badge
               className={'gap-1 text-xs p-2'}
-              variant={isConnected ? 'default' : 'destructive'}
+              variant={isConnected ? 'outline' : 'destructive'}
             >
               {isConnected ? (
                 <>
-                  <Wifi className="w-4 h-4 animate-pulse text-green-700" />
+                  <Wifi className="w-4 h-4 animate-pulse text-green-500" />
                   {open ? 'Connected' : ''}
                 </>
               ) : (
@@ -92,7 +93,7 @@ const Sidebar = ({ open, onToggle }) => {
                     {isLoading ? (
                       <Loader className="animate-spin w-4 h-4" />
                     ) : (
-                      `$${walletBalance.totalAvailableBalance.toLocaleString()}`
+                      `$ ${walletBalance.totalAvailableBalance.toLocaleString()}`
                     )}
                   </span>
                 </div>
@@ -110,7 +111,7 @@ const Sidebar = ({ open, onToggle }) => {
                     ) : (
                       `${
                         parseFloat(walletBalance.totalPerpUPL) >= 0 ? '+' : ''
-                      }$${parseFloat(
+                      }$ ${parseFloat(
                         walletBalance.totalPerpUPL,
                       ).toLocaleString()}`
                     )}

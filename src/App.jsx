@@ -31,7 +31,7 @@ const App = () => {
               </Routes>
             </main>
           </div>
-          <Toaster />
+          <Toaster richColors closeButton />
         </Router>
       </TradingDataProvider>
     </ThemeProvider>

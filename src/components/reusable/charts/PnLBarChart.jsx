@@ -23,6 +23,11 @@ const PnLBarChart = ({ data }) => {
         <Tooltip
           formatter={(value) => [`$${value}`, 'P&L']}
           labelFormatter={(value) => new Date(value).toLocaleDateString()}
+          contentStyle={{
+            color: '#1e293b',
+            background: '#fff',
+            border: '1px solid #e5e7eb',
+          }}
         />
         <Bar dataKey={'pnl'}>
           {data.map((entry, index) => (

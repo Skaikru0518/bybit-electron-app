@@ -11,7 +11,7 @@ import {
 
 const PnLChart = ({ data }) => {
   const chartData = useMemo(() => {
-    // Csoportosítás napok szerint
+    // order by date
     const dailyPnL = {};
 
     data.forEach((trade) => {
@@ -26,7 +26,7 @@ const PnLChart = ({ data }) => {
       dailyPnL[date] += pnl;
     });
 
-    // Rendezés dátum szerint és cumulative számítás
+    // order by date and caluclations
     const sortedDates = Object.keys(dailyPnL).sort();
     let cumulativePnL = 0;
 

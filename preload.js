@@ -60,6 +60,14 @@ contextBridge.exposeInMainWorld('api', {
     ),
   postCancelOrder: (category, symbol, orderId) =>
     ipcRenderer.invoke('postCancelOrder', category, symbol, orderId),
+  postModifyTpSl: (category, symbol, takeProfit, stopLoss) =>
+    ipcRenderer.invoke(
+      'postModifyTpSl',
+      category,
+      symbol,
+      takeProfit,
+      stopLoss,
+    ),
 
   //store
   setStore: (key, value) => ipcRenderer.invoke('setStore', key, value),

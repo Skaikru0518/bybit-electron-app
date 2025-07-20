@@ -18,7 +18,7 @@
   },
   "build": {
     "appId": "com.zentrader.app",
-    "productName": "ZenTrader 2.0",
+    "productName": "ZenTrader",
     "artifactName": "${productName}-Setup-${version}.${ext}",
     "publish": [
       {

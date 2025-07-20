@@ -15,6 +15,7 @@ import {
 import { Badge } from '../ui/badge';
 import { useTradingData } from '../providers/TradingDataProvider';
 import packageJson from '../../../package.json';
+import UpdateButton from './UpdateButton';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: TrendingUp },
@@ -153,8 +154,11 @@ const Sidebar = ({ open, onToggle }) => {
       </nav>
       <div className="flex-col flex-1 items-start justify-end flex">
         {/* <Button onClick={() => fetchInfo()}>Debug</Button> */}
-        <div className="text-xs text-muted-foreground p-1">
-          Build: {packageJson.version}
+        <div className="flex flex-col w-full items-center justify-center">
+          <UpdateButton />
+          <div className="text-xs text-muted-foreground p-1">
+            Build: {packageJson.version}
+          </div>
         </div>
       </div>
     </div>

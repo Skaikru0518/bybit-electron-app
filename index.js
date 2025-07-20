@@ -10,7 +10,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const { autoUpdater } = pkg;
-let updateAvailable = false;
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
 
@@ -19,8 +18,9 @@ const startUrl =
     ? 'http://localhost:5173'
     : `file://${path.join(__dirname, 'dist', 'index.html')}`;
 
+let win;
 const createWindow = () => {
-  const win = new BrowserWindow({
+  win = new BrowserWindow({
     width: 1337,
     height: 768,
     minWidth: 800,
@@ -45,24 +45,49 @@ routes.forEach(({ channel, handler }) => {
 // Auto update function
 autoUpdater.on('checking-for-update', () => {
   log.info('Checking for update...');
+  if (win) win.webContents.send('update-status', { status: 'checking' });
 });
 
 autoUpdater.on('update-available', (info) => {
   log.info('Update available.');
-  updateAvailable = true;
+  if (win)
+    win.webContents.send('update-status', {
+      status: 'available',
+      info,
+      version: info.version,
+    });
 });
 
 autoUpdater.on('update-not-available', (info) => {
   log.info('Update not available');
+  if (win)
+    win.webContents.send('update-status', { status: 'not-available', info });
 });
 
 autoUpdater.on('error', (err) => {
   log.error('Error in auto updater.' + err);
+  if (win)
+    win.webContents.send('update-status', {
+      status: 'error',
+      error: err.message,
+    });
 });
 
 autoUpdater.on('update-downloaded', (info) => {
   log.info('Update downloaded.');
+  if (win)
+    win.webContents.send('update-status', { status: 'downloaded', info });
   autoUpdater.quitAndInstall();
+});
+
+ipcMain.handle('check-for-update', async () => {
+  try {
+    const result = await autoUpdater.checkForUpdates();
+    return result;
+  } catch (error) {
+    log.error('Error checking for updates:', error);
+    throw error;
+  }
 });
 
 app

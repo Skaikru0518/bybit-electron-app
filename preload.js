@@ -72,4 +72,9 @@ contextBridge.exposeInMainWorld('api', {
   //store
   setStore: (key, value) => ipcRenderer.invoke('setStore', key, value),
   getStore: (key) => ipcRenderer.invoke('getStore', key),
+
+  //updates
+  checkForUpdates: () => ipcRenderer.invoke('check-for-update'),
+  onUpdateStatus: (callback) =>
+    ipcRenderer.on('update-status', (_, data) => callback(data)),
 });

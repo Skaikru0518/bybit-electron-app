@@ -70,8 +70,12 @@ function UpdateButton() {
 
   return (
     <Button
-      variant={updateAvailable ? 'default' : 'outline'}
-      className={cn(updateAvailable ? 'bg-emerald-500' : 'bg-transparent')}
+      variant={updateAvailable ? 'default' : 'disabled'}
+      className={cn(
+        updateAvailable
+          ? 'bg-emerald-500 hover:cursor-pointer'
+          : 'bg-transparent cursor-not-allowed',
+      )}
       disabled={status === 'checking' || status === 'downloaded'}
     >
       {getButtonText()}

@@ -28,14 +28,14 @@ const Sidebar = ({ open, onToggle }) => {
   const location = useLocation();
   const { walletBalance, isLoading, isConnected } = useTradingData();
 
-  const fetchInfo = async () => {
-    try {
-      const response = await window.api.getAllOrders('linear', 'USDT');
-      console.log(response);
-    } catch (error) {
-      throw new Error(error);
-    }
-  };
+  // const fetchInfo = async () => {
+  //   try {
+  //     const response = await window.api.getAllOrders('linear', 'USDT');
+  //     console.log(response);
+  //   } catch (error) {
+  //     throw new Error(error);
+  //   }
+  // };
   return (
     <div
       className={cn(
@@ -128,7 +128,7 @@ const Sidebar = ({ open, onToggle }) => {
 
       {/* navigation menu */}
 
-      <nav className="flex-1p-2">
+      <nav className="flex-1 p-2">
         <ul className="space-y-2 flex flex-col">
           {navigation.map((item) => {
             const isActive = location.pathname === item.href;

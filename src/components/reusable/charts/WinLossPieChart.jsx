@@ -8,7 +8,7 @@ const WinLossPieChart = ({ data }) => {
     let win = 0;
     let loss = 0;
 
-    data.forEach((trade) => {
+    data?.forEach((trade) => {
       const pnl = parseFloat(trade.closedPnl);
       if (pnl > 0) win++;
       else if (pnl < 0) loss++;

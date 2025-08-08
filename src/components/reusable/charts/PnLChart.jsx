@@ -14,7 +14,7 @@ const PnLChart = ({ data }) => {
     // order by date
     const dailyPnL = {};
 
-    data.forEach((trade) => {
+    data?.forEach((trade) => {
       const date = new Date(parseInt(trade.updatedTime))
         .toISOString()
         .split('T')[0]; // YYYY-MM-DD

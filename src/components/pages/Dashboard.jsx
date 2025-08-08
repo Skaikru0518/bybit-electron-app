@@ -30,7 +30,7 @@ const Dashboard = () => {
       pnl: walletBalance.totalPerpUPL,
       icon: TrendingUp,
     },
-    { title: 'Open Positions', data: tradesData.length, icon: Activity },
+    { title: 'Open Positions', data: tradesData?.length, icon: Activity },
     {
       title: "Today's P&L",
       data:

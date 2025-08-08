@@ -120,13 +120,27 @@ const Settings = () => {
     }
   };
 
+  // const handleEnvironmentChange = async (value) => {
+  //   setEnvironment(String(value));
+  //   try {
+  //     await window.api.setStore('isDemo', value);
+  //     const env = value === 'true' ? 'demo' : 'mainnet';
+  //     toast.info(`Switched to ${env} environment`);
+  //     // Környezet váltás után frissítjük a kapcsolatot
+  //     setTimeout(() => refreshData(), 500);
+  //   } catch (error) {
+  //     console.warn('Failed to change environment', error);
+  //   }
+  // };
+
   const handleEnvironmentChange = async (value) => {
-    setEnvironment(String(value));
+    const boolValue = value === 'true';
+    setEnvironment(boolValue);
     try {
-      await window.api.setStore('isDemo', value);
-      const env = value === 'true' ? 'demo' : 'mainnet';
+      await window.api.setStore('isDemo', boolValue);
+      const env = boolValue ? 'demo' : 'mainnet';
       toast.info(`Switched to ${env} environment`);
-      // Környezet váltás után frissítjük a kapcsolatot
+
       setTimeout(() => refreshData(), 500);
     } catch (error) {
       console.warn('Failed to change environment', error);
@@ -229,7 +243,7 @@ const Settings = () => {
               <div className="space-y-2">
                 <Label htmlFor="environment">Environment</Label>
                 <Select
-                  value={environment}
+                  value={environment.toString()}
                   onValueChange={handleEnvironmentChange}
                 >
                   <SelectTrigger>

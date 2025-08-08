@@ -263,7 +263,7 @@ const Trades = () => {
           <h2 className="text-3xl font-bold tracking-tight">Open Position</h2>
           <Badge variant={'outline'}>
             {tradesData?.length} Active Position
-            {tradesData.length !== 1 ? 's' : ''}
+            {tradesData?.length !== 1 ? 's' : ''}
           </Badge>
         </div>
         <div className="flex justify-start w-full">
@@ -425,7 +425,7 @@ const Trades = () => {
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
-              {orderBookData.length > 0 ? (
+              {orderBookData?.length > 0 ? (
                 <TableBody>
                   {orderBookData.map((trade) => (
                     <TableRow key={trade.orderId}>

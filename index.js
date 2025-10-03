@@ -90,6 +90,17 @@ ipcMain.handle('check-for-update', async () => {
   }
 });
 
+ipcMain.handle('download-update', async () => {
+  try {
+    log.info('Starting update download...');
+    const result = await autoUpdater.downloadUpdate();
+    return result;
+  } catch (error) {
+    log.error('Error downloading update:', error);
+    throw error;
+  }
+});
+
 app
   .whenReady()
   .then(() => {

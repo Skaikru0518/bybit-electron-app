@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
+import { Loader2, Download } from 'lucide-react';
 
 function UpdateButton() {
   const [updateAvailable, setUpdateAvailable] = useState(false);
@@ -68,16 +69,41 @@ function UpdateButton() {
     }
   };
 
+  const getIcon = () => {
+    if (status === 'checking' || status === 'downloaded') {
+      return <Loader2 className="w-4 h-4 animate-spin" />;
+    }
+    if (updateAvailable) {
+      return <Download className="w-4 h-4" />;
+    }
+    return null;
+  };
+
+  const handleUpdateClick = async () => {
+    if (!updateAvailable) return;
+
+    setStatus('checking');
+    try {
+      await window.api.downloadUpdate();
+    } catch (error) {
+      console.error('Failed to download update:', error);
+      setStatus('error');
+    }
+  };
+
   return (
     <Button
       variant={updateAvailable ? 'default' : 'disabled'}
       className={cn(
+        'gap-2',
         updateAvailable
           ? 'bg-emerald-500 hover:cursor-pointer'
           : 'bg-transparent cursor-not-allowed',
       )}
       disabled={status === 'checking' || status === 'downloaded'}
+      onClick={handleUpdateClick}
     >
+      {getIcon()}
       {getButtonText()}
     </Button>
   );

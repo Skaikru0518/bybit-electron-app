@@ -117,6 +117,7 @@ const Trades = () => {
     setEditingTrade(trade);
     setTakeProfit(trade.takeProfit?.toString() || '');
     setStopLoss(trade.stopLoss?.toString() || '');
+    console.log(takeProfit, stopLoss);
   };
 
   const handleLeverageChange = (value) => {
@@ -219,20 +220,20 @@ const Trades = () => {
   };
 
   const handleUpdateTrade = async () => {
-    // console.log(editingTrade);
-    // console.log('Updating trade', editingTrade?.symbol, {
-    //   takeProfit,
-    //   stopLoss,
-    // });
+    console.log(editingTrade);
+    console.log('Updating trade', editingTrade?.symbol, {
+      takeProfit,
+      stopLoss,
+    });
 
     try {
-      await window.api.postModifyTpSl(
+      const response = await window.api.postModifyTpSl(
         'linear',
         editingTrade.symbol,
         takeProfit,
         stopLoss,
       );
-      //console.log(response);
+      console.log(response);
       toast.success('Trade modified!');
     } catch (error) {
       console.error('Failed to modify trade', error);

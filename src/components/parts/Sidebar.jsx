@@ -11,6 +11,7 @@ import {
   WifiOff,
   ChartArea,
   Loader,
+  Calculator,
 } from 'lucide-react';
 import { Badge } from '../ui/badge';
 import { useTradingData } from '../providers/TradingDataProvider';
@@ -21,6 +22,7 @@ const navigation = [
   { name: 'Dashboard', href: '/', icon: TrendingUp },
   { name: 'Tradingview', href: '/tradingview', icon: ChartArea },
   { name: 'Trades', href: '/trades', icon: BarChart3 },
+  { name: 'Calculator', href: '/calculator', icon: Calculator },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 

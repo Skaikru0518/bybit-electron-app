@@ -7,7 +7,7 @@ const modifyTpSl = async (event, category, symbol, takeProfit, stopLoss) => {
       symbol: symbol,
       takeProfit: takeProfit,
       stopLoss: stopLoss,
-      positionIdx: 0,
+      positionIdx: 2,
       tpTriggerBy: 'MarkPrice',
       slTriggerBy: 'MarkPrice',
       tpslMode: 'Full',

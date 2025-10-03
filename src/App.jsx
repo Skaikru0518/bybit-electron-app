@@ -8,6 +8,7 @@ import Trades from './components/pages/Trades';
 import Settings from './components/pages/Settings';
 import Dashboard from './components/pages/Dashboard';
 import Tradingview from './components/pages/Tradingview';
+import Calculator from './components/pages/Calculator';
 import { TradingDataProvider } from './components/providers/TradingDataProvider';
 
 const App = () => {
@@ -27,6 +28,7 @@ const App = () => {
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/tradingview" element={<Tradingview />} />
                 <Route path="/trades" element={<Trades />} />
+                <Route path="/calculator" element={<Calculator />} />
                 <Route path="/settings" element={<Settings />} />
               </Routes>
             </main>

@@ -21,10 +21,12 @@ export function TradingDataProvider({ children }) {
   const [isConnected, setIsConnected] = useState(false);
   const [tradesData, setTradesData] = useState([]);
   const [orderBookData, setOrderBookData] = useState([]);
+  const [closedPnl, setClosedPnl] = useState([]);
+  const [longTermClosedPnl, setLongTermClosedPnl] = useState([]);
+  const [todayClosedPnl, setTodayClosedPnl] = useState(0);
   const [refreshInterval, setRefreshInterval] = useState(5000); // Default 5 seconds
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(null);
-  const [yesterdaysEquity, setYesterdaysEquity] = useState(null);
 
   // Load refresh interval from Electron store on mount
   useEffect(() => {
@@ -41,70 +43,12 @@ export function TradingDataProvider({ children }) {
     loadRefreshInterval();
   }, []);
 
-  // Load yesterdays equity from Electron store on mount
-  useEffect(() => {
-    const loadYesterdayEquity = async () => {
-      try {
-        const storedYesterdayEquity = await window.api.getStore(
-          'yesterdayEquity',
-        );
-        //console.log('Store-ból betöltött érték:', storedYesterdayEquity); // Debug
-        if (
-          storedYesterdayEquity !== null &&
-          storedYesterdayEquity !== undefined
-        ) {
-          setYesterdaysEquity(parseFloat(storedYesterdayEquity));
-          // console.log(
-          //   'Context state-be beállítva:',
-          //   parseFloat(storedYesterdayEquity),
-          // ); // Debug
-        }
-      } catch (error) {
-        console.error('Failed to load yesterdayEquity:', error);
-      }
-    };
-    loadYesterdayEquity();
-  }, []);
-
-  // Save equity to Electron store if midnight passed
-  useEffect(() => {
-    const saveEquitySnapshot = async () => {
-      try {
-        const today = new Date().toISOString().slice(0, 10);
-        const lastSnapshotDate = await window.api.getStore(
-          'equitySnapshotDate',
-        );
-
-        const storedYesterdayEquity = await window.api.getStore(
-          'yesterdayEquity',
-        );
-        if (
-          storedYesterdayEquity !== null &&
-          storedYesterdayEquity !== undefined
-        ) {
-          setYesterdaysEquity(parseFloat(storedYesterdayEquity));
-        }
-
-        if (lastSnapshotDate !== today && walletBalance.totalEquity) {
-          await window.api.setStore(
-            'yesterdayEquity',
-            walletBalance.totalEquity,
-          );
-          await window.api.setStore('equitySnapshotDate', today);
-          setYesterdaysEquity(parseFloat(walletBalance.totalEquity));
-        }
-      } catch (error) {
-        console.error('Failed to save/load yesterdayEquity', error);
-      }
-    };
-    saveEquitySnapshot();
-  }, [walletBalance.totalEquity]);
-
   // Function to fetch account balance
   const fetchAccountBalance = useCallback(async () => {
     try {
       setIsLoading(true);
       const response = await window.api?.getWalletBalance('unified');
+
       if (response && response.list && response.list[0]) {
         const walletData = response.list[0];
         setWalletBalance({
@@ -153,14 +97,115 @@ export function TradingDataProvider({ children }) {
     }
   }, []);
 
+  // Function to fetch closed PnL (last 7 days for charts)
+  const fetchClosedPnl = useCallback(async () => {
+    try {
+      const response = await window.api?.getClosedPnl('linear');
+      if (response?.list) {
+        setClosedPnl(response.list);
+      }
+    } catch (error) {
+      console.error('Failed to fetch closed pnl data:', error);
+    }
+  }, []);
+
+  // Function to fetch today's closed PnL
+  const fetchTodayClosedPnl = useCallback(async () => {
+    try {
+      // Get today's start time (midnight local time)
+      const now = new Date();
+      const todayStart = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        0,
+        0,
+        0,
+        0
+      );
+      const startTime = todayStart.getTime();
+      const endTime = Date.now();
+
+      // Fetch today's closed PnL from API
+      const response = await window.api?.getClosedPnl(
+        'linear',
+        startTime,
+        endTime
+      );
+
+      // Sum up all closed PnL for today
+      if (response?.list && response.list.length > 0) {
+        const totalPnl = response.list.reduce(
+          (sum, trade) => sum + parseFloat(trade.closedPnl || 0),
+          0
+        );
+        setTodayClosedPnl(totalPnl);
+      } else {
+        setTodayClosedPnl(0);
+      }
+    } catch (error) {
+      console.error('Failed to fetch today closed pnl data:', error);
+      setTodayClosedPnl(0);
+    }
+  }, []);
+
+  // Function to fetch long-term closed PnL (60 days)
+  const fetchLongTermClosedPnl = useCallback(async () => {
+    try {
+      const allTrades = [];
+      const now = Date.now();
+      const daysToFetch = 60;
+      const batchSizeDays = 7; // Bybit API limit
+      const batches = Math.ceil(daysToFetch / batchSizeDays);
+
+      // Fetch data in 7-day batches going backwards
+      for (let i = 0; i < batches; i++) {
+        const endTime = now - i * batchSizeDays * 24 * 60 * 60 * 1000;
+        const startTime = endTime - batchSizeDays * 24 * 60 * 60 * 1000;
+
+        try {
+          const response = await window.api?.getClosedPnl(
+            'linear',
+            startTime,
+            endTime
+          );
+
+          if (response?.list && response.list.length > 0) {
+            allTrades.push(...response.list);
+          }
+        } catch (batchError) {
+          console.error(`Failed to fetch batch ${i + 1}:`, batchError);
+        }
+
+        // Small delay to avoid rate limiting
+        if (i < batches - 1) {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+      }
+
+      setLongTermClosedPnl(allTrades);
+    } catch (error) {
+      console.error('Failed to fetch long-term closed pnl data:', error);
+      setLongTermClosedPnl([]);
+    }
+  }, []);
+
   // Function to fetch all data
   const fetchAllData = useCallback(async () => {
     await Promise.all([
       fetchAccountBalance(),
       fetchTradesData(),
       fetchOrderBookData(),
+      fetchClosedPnl(),
+      fetchTodayClosedPnl(),
     ]);
-  }, [fetchAccountBalance, fetchTradesData, fetchOrderBookData]);
+  }, [
+    fetchAccountBalance,
+    fetchTradesData,
+    fetchOrderBookData,
+    fetchClosedPnl,
+    fetchTodayClosedPnl,
+  ]);
 
   // Function to update refresh interval
   const updateRefreshInterval = useCallback(async (newInterval) => {
@@ -171,6 +216,11 @@ export function TradingDataProvider({ children }) {
       console.error('Failed to save refresh interval:', error);
     }
   }, []);
+
+  // Fetch long-term data once on mount (doesn't refresh automatically)
+  useEffect(() => {
+    fetchLongTermClosedPnl();
+  }, [fetchLongTermClosedPnl]);
 
   // Set up interval for real-time updates
   useEffect(() => {
@@ -189,8 +239,10 @@ export function TradingDataProvider({ children }) {
     walletBalance,
     tradesData,
     orderBookData,
+    closedPnl,
+    longTermClosedPnl,
+    todayClosedPnl,
     isConnected,
-    yesterdaysEquity,
 
     // State
     isLoading,
@@ -204,6 +256,9 @@ export function TradingDataProvider({ children }) {
     // Individual fetch functions
     fetchAccountBalance,
     fetchTradesData,
+    fetchClosedPnl,
+    fetchTodayClosedPnl,
+    fetchLongTermClosedPnl,
   };
 
   return (

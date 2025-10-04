@@ -23,7 +23,8 @@ contextBridge.exposeInMainWorld('api', {
   getActiveOrders: (category, symbol) =>
     ipcRenderer.invoke('getActiveOrders', category, symbol),
 
-  getClosedPnl: (category) => ipcRenderer.invoke('getClosedPnl', category),
+  getClosedPnl: (category, startTime, endTime) =>
+    ipcRenderer.invoke('getClosedPnl', category, startTime, endTime),
 
   getInstrumentInfo: (category, symbol) =>
     ipcRenderer.invoke('getInstrumentInfo', category, symbol),

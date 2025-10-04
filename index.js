@@ -5,6 +5,7 @@ import process from 'node:process';
 import routes from './api/routes.js';
 import pkg from 'electron-updater';
 import log from 'electron-log';
+import { initializeEncryptionKey } from './api/utils/encrypt.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -103,7 +104,15 @@ ipcMain.handle('download-update', async () => {
 
 app
   .whenReady()
-  .then(() => {
+  .then(async () => {
+    // Initialize encryption key cache
+    try {
+      await initializeEncryptionKey();
+      log.info('Encryption key initialized successfully');
+    } catch (error) {
+      log.error('Failed to initialize encryption key:', error);
+      // Continue anyway - encryption will handle missing key gracefully
+    }
     createWindow();
   })
   .then(() => {

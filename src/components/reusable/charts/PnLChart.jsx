@@ -41,7 +41,7 @@ const PnLChart = ({ data }) => {
   }, [data]);
 
   return (
-    <ResponsiveContainer width={'100%'} height={300}>
+    <ResponsiveContainer width={'100%'} height={350}>
       <AreaChart data={chartData}>
         <CartesianGrid strokeDasharray={'0, 0'} />
         <XAxis
@@ -63,6 +63,7 @@ const PnLChart = ({ data }) => {
           stroke="#3b82f6"
           fill="#3b82f6"
           fillOpacity={0.3}
+          isAnimationActive={false}
         />
       </AreaChart>
     </ResponsiveContainer>

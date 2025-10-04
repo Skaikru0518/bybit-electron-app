@@ -32,6 +32,7 @@ const VolumeChart = ({ data }) => {
           fill="#3b82f6"
           fillOpacity={0.7}
           stroke="#3b82f6"
+          isAnimationActive={false}
         />
       </BarChart>
     </ResponsiveContainer>

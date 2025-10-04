@@ -40,7 +40,7 @@ const Settings = () => {
     useTradingData();
   const [apiKey, setApiKey] = useState('');
   const [apiSecret, setApiSecret] = useState('');
-  const [environment, setEnvironment] = useState('demo');
+  const [environment, setEnvironment] = useState(true); // true = demo, false = mainnet
   const [compactMode, setCompactMode] = useState(false);
   const [showBalanceInHeader, setShowBalanceInHeader] = useState(true);
   const [soundNotifications, setSoundNotifications] = useState(false);
@@ -64,7 +64,9 @@ const Settings = () => {
         if (storedApiKey) setApiKey(storedApiKey);
         if (storedApiSecret) setApiSecret(storedApiSecret);
         if (storedEnvironment !== null && storedEnvironment !== undefined)
-          setEnvironment(String(storedEnvironment));
+          setEnvironment(
+            storedEnvironment === 'true' || storedEnvironment === true,
+          );
         if (storedCompactMode !== null && storedCompactMode !== undefined)
           setCompactMode(
             storedCompactMode === 'true' || storedCompactMode === true,
@@ -120,30 +122,18 @@ const Settings = () => {
     }
   };
 
-  // const handleEnvironmentChange = async (value) => {
-  //   setEnvironment(String(value));
-  //   try {
-  //     await window.api.setStore('isDemo', value);
-  //     const env = value === 'true' ? 'demo' : 'mainnet';
-  //     toast.info(`Switched to ${env} environment`);
-  //     // Környezet váltás után frissítjük a kapcsolatot
-  //     setTimeout(() => refreshData(), 500);
-  //   } catch (error) {
-  //     console.warn('Failed to change environment', error);
-  //   }
-  // };
-
   const handleEnvironmentChange = async (value) => {
     const boolValue = value === 'true';
     setEnvironment(boolValue);
     try {
       await window.api.setStore('isDemo', boolValue);
       const env = boolValue ? 'demo' : 'mainnet';
-      toast.info(`Switched to ${env} environment`);
+      toast.info(`Switched to ${env} environment. Please restart the app!`);
 
       setTimeout(() => refreshData(), 500);
     } catch (error) {
       console.warn('Failed to change environment', error);
+      toast.error('Failed to change environment');
     }
   };
 
@@ -352,7 +342,7 @@ const Settings = () => {
                   </p>
                 </div>
                 <Switch
-                  disabled="true"
+                  disabled={true}
                   checked={compactMode}
                   onCheckedChange={() =>
                     hanldeToggleSetting(
@@ -371,7 +361,7 @@ const Settings = () => {
                   </p>
                 </div>
                 <Switch
-                  disabled="true"
+                  disabled={true}
                   checked={showBalanceInHeader}
                   onCheckedChange={() =>
                     hanldeToggleSetting(
@@ -390,7 +380,7 @@ const Settings = () => {
                   </p>
                 </div>
                 <Switch
-                  disabled="true"
+                  disabled={true}
                   checked={soundNotifications}
                   onCheckedChange={() =>
                     hanldeToggleSetting(

@@ -29,7 +29,7 @@ const PnLBarChart = ({ data }) => {
             border: '1px solid #e5e7eb',
           }}
         />
-        <Bar dataKey={'pnl'}>
+        <Bar dataKey={'pnl'} isAnimationActive={false}>
           {data.map((entry, index) => (
             <Cell
               key={`cell-${index}`}
